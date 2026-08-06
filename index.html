@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AWS SAA-C03 et SAP-C02 Cloud Architect revision cheat sheet.">
+    <title>AWS Cloud Architect — SAA-C03 & SAP-C02</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --aws-orange: #ff9900;
+            --aws-orange-dark: #c76b00;
+            --aws-blue: #38bdf8;
+            --aws-blue-dark: #0284c7;
+            --bg: #f1f5f9;
+            --surface: #ffffff;
+            --surface-soft: #f8fafc;
+            --text: #172033;
+            --muted: #596579;
+            --line: #dbe3ed;
+            --shadow: 0 4px 12px rgba(15, 23, 42, .10);
+            --danger: #dc2626;
+            --success: #15803d;
+            --purple: #7c3aed;
+        }
+
+        body.dark {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --surface-soft: #172235;
+            --text: #e5edf7;
+            --muted: #b5c0d1;
+            --line: #334155;
+            --shadow: 0 4px 14px rgba(0, 0, 0, .28);
+        }
+
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            transition: background-color .2s, color .2s;
+        }
+        .container { max-width: 1280px; margin: 0 auto; }
+        header {
+            text-align: center;
+            padding: 32px 20px 28px;
+            background: var(--surface);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            border-top: 8px solid var(--aws-orange);
+        }
+        h1 { color: var(--aws-orange); margin: 0; font-size: clamp(1.8rem, 4vw, 2.7rem); }
+        .subtitle { color: var(--muted); font-weight: bold; margin: 6px 0 20px; }
+        .header-tools { display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .search-box { position: relative; width: min(680px, 100%); }
+        .search-box i { position: absolute; left: 14px; top: 13px; color: var(--aws-blue-dark); }
+        #global-search {
+            width: 100%; padding: 11px 42px 11px 40px; border: 2px solid var(--line);
+            border-radius: 8px; background: var(--surface-soft); color: var(--text); font-size: 1rem; outline: none;
+        }
+        #global-search:focus { border-color: var(--aws-orange); box-shadow: 0 0 0 3px rgba(255,153,0,.16); }
+        #clear-search { position: absolute; right: 8px; top: 6px; border: 0; background: transparent; color: var(--muted); cursor: pointer; padding: 7px; }
+        .icon-button, .tab-button {
+            border: 1px solid var(--line); border-radius: 7px; background: var(--surface-soft); color: var(--text);
+            cursor: pointer; font-weight: 700; transition: .2s;
+        }
+        .icon-button { padding: 10px 13px; }
+        .icon-button:hover, .tab-button:hover { border-color: var(--aws-orange); color: var(--aws-orange); }
+        .search-status { margin: 12px 0 0; color: var(--muted); font-size: .9rem; min-height: 22px; }
+        .tabs {
+            display: flex; gap: 8px; flex-wrap: wrap; padding: 8px; margin-bottom: 22px;
+            background: var(--surface); border-radius: 9px; box-shadow: var(--shadow);
+        }
+        .tab-button { padding: 12px 18px; flex: 1 1 260px; font-size: .98rem; }
+        .tab-button.active { background: var(--aws-orange); border-color: var(--aws-orange); color: #111827; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+        .panel-intro { background: var(--surface); border-left: 5px solid var(--aws-blue); border-radius: 8px; padding: 18px 20px; box-shadow: var(--shadow); margin-bottom: 20px; }
+        .panel-intro h2 { margin: 0 0 5px; color: var(--aws-blue); border: 0; }
+        .panel-intro p { margin: 4px 0; color: var(--muted); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; }
+        .card {
+            background: var(--surface); border-radius: 8px; padding: 20px; box-shadow: var(--shadow);
+            transition: transform .2s, opacity .2s; border-left: 5px solid var(--aws-blue); min-width: 0;
+        }
+        .card:hover { transform: translateY(-4px); }
+        .card.hidden, details.hidden, .table-section.hidden, .panel-intro.hidden { display: none !important; }
+        h2 { border-bottom: 2px solid var(--line); padding-bottom: 10px; display: flex; align-items: center; font-size: 1.25em; color: var(--aws-blue); margin-top: 0; }
+        h2 i { margin-right: 10px; color: var(--aws-orange); width: 22px; text-align: center; }
+        h3 { color: var(--aws-blue); font-size: 1.05rem; margin: 18px 0 7px; }
+        h3 i { color: var(--aws-orange); margin-right: 6px; }
+        .item { margin-bottom: 12px; }
+        .label { font-weight: bold; color: var(--text); }
+        .desc, .item { font-size: .95em; color: var(--muted); }
+        .tag {
+            display: inline-block; background: rgba(56,189,248,.14); color: var(--aws-blue-dark);
+            padding: 2px 8px; border-radius: 4px; font-size: .78em; font-weight: bold; margin: 0 5px 3px 0;
+        }
+        body.dark .tag { color: #7dd3fc; }
+        .highlight, .gotcha {
+            background-color: rgba(255,153,0,.12); border: 1px dashed var(--aws-orange);
+            padding: 11px; border-radius: 5px; margin-top: 12px; color: var(--text); font-size: .92rem;
+        }
+        .gotcha { background: rgba(220,38,38,.10); border-color: #ef4444; }
+        .gotcha b:first-child { color: var(--danger); }
+        .success-box { background: rgba(21,128,61,.10); border: 1px dashed var(--success); padding: 11px; border-radius: 5px; margin-top: 12px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: .86em; }
+        th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+        th { background-color: rgba(56,189,248,.12); color: var(--text); }
+        tbody tr:hover { background: rgba(255,153,0,.06); }
+        .table-section { background: var(--surface); border-radius: 8px; padding: 20px; box-shadow: var(--shadow); margin-top: 20px; border-top: 5px solid var(--aws-orange); overflow-x: auto; }
+        .table-section h2 { margin-bottom: 8px; }
+        ul { margin: 5px 0; padding-left: 21px; font-size: .91em; color: var(--muted); }
+        li { margin: 4px 0; }
+        code { color: var(--aws-orange-dark); background: rgba(255,153,0,.10); border-radius: 3px; padding: 1px 4px; }
+        body.dark code { color: #fdba74; }
+        .security { border-left-color: #ef4444; } .network { border-left-color: var(--aws-orange); }
+        .compute { border-left-color: #22c55e; } .storage { border-left-color: var(--purple); }
+        .messaging { border-left-color: #f97316; } .dr { border-left-color: #64748b; }
+        .database { border-left-color: #06b6d4; } .deployment { border-left-color: #ec4899; }
+        .finops { border-left-color: #16a34a; } .governance { border-left-color: #a855f7; }
+        details { background: var(--surface-soft); border: 1px solid var(--line); border-radius: 6px; margin-bottom: 12px; transition: .2s; }
+        details[open] { border-left: 5px solid var(--aws-orange); background: var(--surface); box-shadow: 0 2px 5px rgba(0,0,0,.07); }
+        details.security-case[open] { border-left-color: #ef4444; } details.network-case[open] { border-left-color: var(--aws-blue); }
+        summary { padding: 14px; font-weight: bold; cursor: pointer; color: var(--text); display: flex; align-items: center; font-size: 1.05em; outline: none; }
+        summary i { margin-right: 12px; color: var(--aws-orange); width: 20px; text-align: center; }
+        .case-content { padding: 0 20px 20px; }
+        .case-content h3 { display: flex; align-items: center; }
+        .architecture { background: var(--surface-soft); border: 1px solid var(--line); border-radius: 6px; padding: 12px; margin: 10px 0; color: var(--muted); font-family: 'Segoe UI', sans-serif; }
+        .architecture strong { color: var(--aws-blue); }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 14px; }
+        .kpi { background: var(--surface-soft); border: 1px solid var(--line); border-radius: 6px; padding: 10px; text-align: center; }
+        .kpi strong { display: block; color: var(--aws-orange); font-size: 1.2rem; }
+        footer { text-align: center; color: var(--muted); padding: 30px 0 10px; font-size: .85rem; }
+        @media (max-width: 600px) { body { padding: 10px; } .grid { grid-template-columns: 1fr; } .card, .table-section { padding: 16px; } table { min-width: 650px; } h1 { font-size: 1.85rem; } }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1><i class="fab fa-aws"></i> AWS Cloud Architect</h1>
+        <p class="subtitle">SAA-C03 &amp; SAP-C02 — Quick Reference, Deep Dives &amp; Exam Traps</p>
+        <div class="header-tools">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input id="global-search" type="search" aria-label="Recherche globale : service, limite ou scénario" title="Rechercher un service, une limite ou un scénario">
+                <button id="clear-search" type="button" aria-label="Effacer la recherche"><i class="fas fa-times"></i></button>
+            </div>
+            <button class="icon-button" id="theme-toggle" type="button" aria-label="Basculer le thème"><i class="fas fa-moon"></i> Thème</button>
+        </div>
+        <p id="search-status" class="search-status" aria-live="polite">Recherche dans les deux parcours de révision.</p>
+    </header>
+
+    <nav class="tabs" aria-label="Parcours de révision">
+        <button id="associate-tab" class="tab-button active" data-tab="associate" type="button"><i class="fas fa-layer-group"></i> AWS Basics &amp; Deep Dives Services</button>
+        <button id="professional-tab" class="tab-button" data-tab="professional" type="button"><i class="fas fa-building-shield"></i> AWS SAP-C02 Enterprise Architectures</button>
+    </nav>
+
+    <main>
+        <section id="associate" class="tab-panel active" aria-labelledby="associate-tab">
+            <div class="panel-intro searchable">
+                <h2><i class="fas fa-graduation-cap"></i> Parcours Associate — SAA-C03</h2>
+                <p>Fondamentaux et approfondissements pour concevoir des architectures sécurisées, résilientes, performantes et économiquement optimisées. La source associe 65 questions en 130 minutes, 50 questions notées, 15 expérimentales et un seuil de 720/1 000.</p>
+                <div class="kpi-grid"><div class="kpi"><strong>30%</strong>Sécurité</div><div class="kpi"><strong>26%</strong>Résilience</div><div class="kpi"><strong>24%</strong>Performance</div><div class="kpi"><strong>20%</strong>Coûts</div></div>
+            </div>
+            <div class="grid">
+                <article class="card searchable">
+                    <h2><i class="fas fa-compass"></i> SAA-C03 : méthode &amp; Well-Architected</h2>
+                    <div class="item"><span class="tag">Sécurité</span> identité, privilège minimal, chiffrement, segmentation et traçabilité avant toute optimisation.</div>
+                    <div class="item"><span class="tag">Résilience</span> supprimer les SPOF, répartir sur plusieurs AZ, découpler et prévoir la restauration testée. Multi-AZ protège d’une panne d’AZ ; multi-Region protège d’une panne régionale.</div>
+                    <div class="item"><span class="tag">Performance</span> choisir selon le pattern d’accès, la latence, le débit, la taille et la cohérence ; préférer cache, asynchronisme et scale-out au surdimensionnement.</div>
+                    <div class="item"><span class="tag">Coût</span> comparer coût fixe/variable, trafic inter-AZ, stockage, licences et effort d’exploitation. « Managed/serverless » réduit souvent l’ops, mais pas toujours le coût unitaire.</div>
+                    <div class="highlight"><b>Réflexe d’examen :</b> relever le qualificatif principal, les contraintes absolues (RTO, protocole, chiffrement, ordre, cohérence), puis éliminer les réponses qui violent une propriété native AWS.</div>
+                </article>
+
+                <article class="card security searchable">
+                    <h2><i class="fas fa-shield-halved"></i> IAM, sécurité &amp; gouvernance</h2>
+                    <div class="item"><span class="tag">IAM</span> <span class="label">Least privilege :</span> une policy JSON combine <b>Effect, Principal, Action, Resource, Condition</b>. Préférer les rôles temporaires à des clés longues et limiter chaque identité à son besoin réel.</div>
+                    <div class="item"><span class="tag">IAM Identity Center</span> Fédération SSO centralisée vers plusieurs comptes ; connecter un IdP SAML 2.0/OIDC et éviter les utilisateurs IAM locaux dupliqués.</div>
+                    <div class="item"><span class="tag">Organizations / SCP</span> Une SCP ne donne jamais un droit : elle définit le plafond applicable à un compte/OU. Un <b>explicit deny</b> dans IAM, SCP ou permission boundary gagne toujours.</div>
+                    <div class="item"><span class="tag">KMS</span> Chiffrement d’enveloppe : une data key chiffre les données, la CMK chiffre la data key. La key policy doit autoriser explicitement les comptes/rôles externes.</div>
+                    <div class="item"><span class="tag">CloudTrail</span> Journaliser les appels API (management/data events selon le besoin), centraliser les logs dans S3 et protéger l’historique contre l’altération.</div>
+                    <div class="item"><span class="tag">GuardDuty</span> Détection managée de menaces via CloudTrail, VPC Flow Logs et DNS ; <b>Inspector</b> recherche les vulnérabilités EC2/ECR ; <b>Security Hub</b> agrège les findings.</div>
+                    <div class="highlight"><b>Hiérarchie de décision :</b> refus implicite par défaut → allow explicite requis → tout explicit deny annule l’allow. IAM décide <i>qui</i> ; SCP/permission boundary limitent <i>jusqu’où</i>.</div>
+                </article>
+
+                <article class="card security searchable">
+                    <h2><i class="fas fa-user-lock"></i> IAM avancé : les couches d’autorisation</h2>
+                    <div class="item"><span class="tag">Identity policy</span> attachée à un user/group/role ; accorde un droit si l’action, la ressource et les conditions correspondent.</div>
+                    <div class="item"><span class="tag">Resource policy</span> attachée à S3, SQS, SNS, KMS ou Lambda ; utile pour l’accès cross-account, avec un <code>Principal</code> explicite.</div>
+                    <div class="item"><span class="tag">Permission boundary</span> plafond d’un principal IAM ; elle ne donne aucune autorisation par elle-même. <span class="tag">Session policy</span> réduit encore les permissions d’une session STS.</div>
+                    <div class="item"><span class="tag">STS</span> <code>AssumeRole</code> fournit des credentials temporaires ; vérifier trust policy du rôle, identity policy de l’appelant, durée et conditions ExternalId/MFA.</div>
+                    <div class="item"><span class="tag">Access Analyzer</span> détecte les accès externes involontaires et peut générer une policy à partir de l’activité CloudTrail. <span class="tag">Secrets Manager</span> fait tourner les secrets ; Parameter Store convient aux paramètres et secrets simples.</div>
+                    <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> Piège IAM :</b> une SCP, une permission boundary ou une key policy n’accorde pas automatiquement un droit. L’autorisation effective est l’intersection des couches applicables, avec priorité à l’explicit deny.</div>
+                </article>
+
+                <article class="card security searchable">
+                    <h2><i class="fas fa-shield-virus"></i> Sécurité avancée des workloads</h2>
+                    <div class="item"><span class="tag">AWS WAF</span> règles L7 contre SQLi/XSS, rate-based rules et managed rule groups sur CloudFront, ALB ou API Gateway. <span class="tag">Shield</span> protège contre DDoS ; Shield Advanced ajoute visibilité et protections avancées.</div>
+                    <div class="item"><span class="tag">Network Firewall</span> inspection stateful/stateless au niveau VPC, souvent centralisée dans une inspection VPC via TGW. Prévoir routes aller/retour et symétrie.</div>
+                    <div class="item"><span class="tag">Macie</span> découvre et classe les données sensibles/PII dans S3 ; <span class="tag">Detective</span> analyse les relations et la cause d’un finding ; <span class="tag">Security Hub</span> agrège les contrôles et findings.</div>
+                    <div class="item"><span class="tag">ACM</span> certificats TLS publics renouvelés automatiquement ; certificats privés via Private CA. Pour CloudFront, le certificat doit être dans <b>us-east-1</b>.</div>
+                    <div class="item"><span class="tag">S3 hardening</span> Block Public Access, bucket policy minimale, Object Ownership Bucket owner enforced, versioning, Object Lock et VPC endpoint policy selon le besoin.</div>
+                    <div class="highlight"><b>Responsabilités :</b> AWS sécurise le cloud (infrastructure) ; le client sécurise ce qu’il met dans le cloud (identités, données, configuration, patchs selon le service).</div>
+                </article>
+
+                <article class="card storage searchable">
+                    <h2><i class="fas fa-gauge-high"></i> Limites &amp; métriques à mémoriser</h2>
+                    <table><thead><tr><th>Service</th><th>Repère utile</th><th>Conséquence architecture</th></tr></thead><tbody>
+                        <tr><td><b>S3</b></td><td>Objet jusqu’à 5 To ; multipart recommandé dès gros objets et obligatoire au-delà de 5 Go.</td><td>Paralléliser les parts, reprendre un upload interrompu et contrôler les coûts de requêtes.</td></tr>
+                        <tr><td><b>Lambda</b></td><td>Invocation maximale 15 min ; concurrence, mémoire, taille package et ephemeral storage limités.</td><td>Utiliser SQS/Step Functions ou ECS/Fargate pour les traitements longs.</td></tr>
+                        <tr><td><b>EBS</b></td><td>gp3 sépare capacité, IOPS et débit ; io2 vise IOPS/durabilité élevées ; volume attaché à une AZ.</td><td>Snapshot, réplication ou architecture applicative pour changer d’AZ.</td></tr>
+                        <tr><td><b>DynamoDB</b></td><td>Partition key bien distribuée ; capacité provisioned/on-demand, hot partitions et limites d’index à surveiller.</td><td>Modéliser d’abord les accès ; ne pas traiter DynamoDB comme une table SQL.</td></tr>
+                        <tr><td><b>API/SQS</b></td><td>Payloads, timeout, visibilité, rétention et débit varient selon le type d’API/queue.</td><td>Paginer, découpler, utiliser DLQ et rendre les consumers idempotents.</td></tr>
+                    </tbody></table>
+                    <div class="highlight"><b>Attention :</b> les Service Quotas évoluent et certaines limites sont augmentables. Mémoriser le principe et vérifier la limite exacte dans la console lorsque la question la fournit.</div>
+                </article>
+
+                <article class="card network searchable">
+                    <h2><i class="fas fa-network-wired"></i> VPC Core &amp; connectivité</h2>
+                    <div class="item"><span class="tag">VPC</span> Régionnel et isolé : subnets associés à une AZ, route tables et CIDR non chevauchants. Public signifie route vers Internet Gateway, pas seulement une IP publique.</div>
+                    <div class="item"><span class="tag">Security Group</span> Au niveau ENI, <b>stateful</b>, uniquement Allow : le retour d’une connexion autorisée est accepté automatiquement.</div>
+                    <div class="item"><span class="tag">NACL</span> Au niveau subnet, <b>stateless</b>, Allow et Deny ; règles évaluées par numéro croissant. Autoriser explicitement les ports éphémères de retour.</div>
+                    <div class="item"><span class="tag">Endpoints</span> Gateway Endpoint pour S3/DynamoDB (route table, pas de coût horaire) ; Interface Endpoint/PrivateLink pour la plupart des APIs, ENI privés et coût par AZ/données.</div>
+                    <div class="item"><span class="tag">NAT Gateway</span> Sortie Internet depuis privé, déployer par AZ pour résilience. Internet Gateway sert au public ; NAT Gateway n’autorise pas les connexions entrantes.</div>
+                    <div class="item"><span class="tag">Peering / TGW</span> Peering est direct, privé et non transitif ; Transit Gateway devient le routeur régional hub-and-spoke pour de nombreux VPC et VPN.</div>
+                    <div class="item"><span class="tag">Direct Connect</span> Liaison dédiée et stable, mais pas chiffrée par défaut : ajouter VPN/IPsec si le chiffrement est requis. Public VIF pour services publics, private VIF pour VPC, transit VIF vers DXGW/TGW.</div>
+                    <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> Piège Examen :</b> un Security Group ne peut pas refuser une IP ; utiliser un NACL, AWS WAF ou une policy adaptée. Un VPC endpoint évite NAT/Internet uniquement pour les services qu’il dessert.</div>
+                </article>
+
+                <article class="card storage searchable">
+                    <h2><i class="fas fa-hard-drive"></i> S3, EBS &amp; systèmes de fichiers</h2>
+                    <div class="item"><span class="tag">S3</span> Objet durable, multi-AZ par conception, clé unique par bucket. Versioning protège des suppressions ; Object Lock/WORM impose rétention et legal hold ; SSE-S3 par défaut, SSE-KMS pour contrôle/audit de clés.</div>
+                    <div class="item"><span class="tag">S3 classes</span> Standard (actif), Intelligent-Tiering (accès imprévisible), Standard-IA/One Zone-IA (moins fréquent), Glacier Instant/Flexible/Deep Archive (archives). Lifecycle automatise transitions et expiration.</div>
+                    <div class="item"><span class="tag">S3 performance</span> Multipart upload pour objets volumineux, presigned URL pour accès temporaire, Transfer Acceleration pour longue distance, CloudFront pour cache global. S3 fournit une forte cohérence read-after-write sur les opérations d’objets ; gérer tout de même retries, erreurs et conflits de réplication.</div>
+                    <div class="item"><span class="tag">EBS</span> Bloc attaché à une AZ : gp3 (SSD général, IOPS/throughput séparables), io2 Block Express (IOPS et durabilité critiques), st1 (throughput séquentiel), sc1 (cold). Snapshots incrémentaux S3, chiffrables KMS.</div>
+                    <div class="item"><span class="tag">EFS</span> NFS élastique partagé, multi-AZ et adapté à plusieurs EC2/Lambda ; EFS IA réduit le coût des fichiers peu consultés.</div>
+                    <div class="item"><span class="tag">FSx</span> Windows File Server pour SMB/AD, Lustre pour HPC/ML et throughput élevé, NetApp ONTAP pour fonctions enterprise, OpenZFS pour workloads ZFS.</div>
+                    <div class="highlight"><b>Repères :</b> EBS = bloc et une AZ ; EFS = fichiers POSIX partagé ; S3 = objets et API HTTP ; FSx = protocole/plateforme spécialisée. Ne pas monter un volume EBS normal simultanément sur plusieurs AZ.</div>
+                </article>
+
+                <article class="card compute searchable">
+                    <h2><i class="fas fa-server"></i> EC2, Auto Scaling &amp; serverless</h2>
+                    <div class="item"><span class="tag">EC2</span> Choisir une famille selon CPU, mémoire, réseau, stockage local ou accélérateur. User data automatise le bootstrap ; AMI et Launch Template rendent le déploiement reproductible.</div>
+                    <div class="item"><span class="tag">On-Demand</span> Flexibilité sans engagement ; <span class="tag">Reserved/Savings Plans</span> remise contre engagement ; <span class="tag">Spot</span> capacité interruptible avec risque de récupération : batch, workers et workloads tolérants.</div>
+                    <div class="item"><span class="tag">Auto Scaling</span> répartir sur plusieurs AZ, target tracking pour maintenir une métrique, scheduled scaling pour charge prévisible, predictive scaling pour patterns historiques ; découpler avec SQS pour absorber les pics.</div>
+                    <div class="item"><span class="tag">ELB</span> ALB = L7 HTTP/S, host/path routing, WAF et TLS ; NLB = L4 TCP/UDP/TLS, très haute performance et IP statique ; GWLB = insertion d’appliances réseau.</div>
+                    <div class="item"><span class="tag">Lambda</span> événementiel, pay-per-invocation/durée, stateless ; limites clés à surveiller : durée maximale d’une invocation 15 min, concurrence et taille du package. Pour longue durée/contrôle réseau, ECS/Fargate ou EC2.</div>
+                    <div class="item"><span class="tag">Containers</span> ECS est l’orchestrateur AWS intégré ; EKS est Kubernetes managé ; Fargate supprime la gestion des nœuds. ECR stocke les images, déploiement blue/green ou canary via CodeDeploy.</div>
+                    <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> Piège Examen :</b> « scale to zero, stateless, trafic irrégulier » pointe vers Lambda/API Gateway ou Fargate/serverless. Une instance Spot n’est jamais le seul composant d’une base ou d’un service critique sans reprise.</div>
+                </article>
+
+                <article class="card database searchable">
+                    <h2><i class="fas fa-database"></i> Bases de données &amp; caches</h2>
+                    <div class="item"><span class="tag">RDS Multi-AZ</span> haute disponibilité avec réplica standby synchrone et failover ; le standby n’est pas une cible de lecture. Read Replicas servent à scaler les lectures et peuvent être promues.</div>
+                    <div class="item"><span class="tag">Aurora</span> stockage distribué répliqué sur 3 AZ/6 copies, séparation compute/storage, réplicas Aurora et endpoints reader/writer. Aurora Global Database vise lecture distante et DR cross-Region.</div>
+                    <div class="item"><span class="tag">DynamoDB</span> NoSQL clé-valeur/document, accès par partition key ; GSI/LSI pour patterns de requêtes, on-demand ou provisioned capacity, DAX pour cache en mémoire, Global Tables pour multi-région.</div>
+                    <div class="item"><span class="tag">ElastiCache</span> Redis pour structures riches, réplication/failover et sessions ; Memcached pour cache simple horizontal. <span class="tag">MemoryDB</span> fournit un datastore Redis durable.</div>
+                    <div class="item"><span class="tag">Redshift</span> data warehouse analytique ; <span class="tag">OpenSearch</span> recherche/logs ; <span class="tag">Neptune</span> graph ; <span class="tag">DocumentDB</span> document compatible MongoDB ; <span class="tag">Timestream</span> séries temporelles.</div>
+                    <div class="highlight"><b>Choix rapide :</b> transactions relationnelles = RDS/Aurora ; clé-valeur à très grande échelle = DynamoDB ; recherche texte/logs = OpenSearch ; analytique colonne = Redshift ; cache = ElastiCache.</div>
+                </article>
+
+                <article class="card messaging searchable">
+                    <h2><i class="fas fa-arrows-to-circle"></i> Messaging, intégration &amp; APIs</h2>
+                    <table><thead><tr><th>Service</th><th>Modèle</th><th>Décision d’architecture</th></tr></thead><tbody>
+                        <tr><td><b>SQS Standard</b></td><td>Queue, at-least-once</td><td>Découplage et débit ; idempotence côté consumer.</td></tr>
+                        <tr><td><b>SQS FIFO</b></td><td>Ordre/déduplication</td><td>GroupId pour ordre par groupe ; débit inférieur au Standard.</td></tr>
+                        <tr><td><b>SNS</b></td><td>Pub/sub fan-out</td><td>Publier vers SQS, Lambda, HTTPS ou email ; filtrage de messages.</td></tr>
+                        <tr><td><b>EventBridge</b></td><td>Event bus</td><td>Routage par règles, événements AWS/SaaS/custom, archive/replay.</td></tr>
+                        <tr><td><b>Step Functions</b></td><td>Orchestration</td><td>Retries, branches, compensation et workflow visible.</td></tr>
+                        <tr><td><b>API Gateway</b></td><td>API managée</td><td>Auth, throttling, stages, cache et intégration Lambda/HTTP.</td></tr>
+                    </tbody></table>
+                    <div class="item"><span class="tag">Kinesis</span> Data Streams pour événements temps réel avec shards/capacité ; Firehose pour livraison managée vers S3/Redshift/OpenSearch ; Analytics pour SQL streaming. Kafka managé = Amazon MSK.</div>
+                    <div class="highlight"><b>Pattern robuste :</b> producteur → SNS/EventBridge → plusieurs SQS DLQ → consumers idempotents. Une DLQ facilite l’analyse sans perdre les messages après des retries épuisés.</div>
+                </article>
+
+                <article class="card network searchable">
+                    <h2><i class="fas fa-globe"></i> Route 53, CloudFront &amp; observabilité</h2>
+                    <div class="item"><span class="tag">Route 53</span> alias vers AWS (pas de coût de query alias), health checks et politiques Simple, Weighted, Latency, Failover, Geolocation/Geoproximity. Private Hosted Zone pour résolution dans VPC.</div>
+                    <div class="item"><span class="tag">CloudFront</span> CDN global : cache edge, TLS ACM (certificat dans us-east-1 pour distribution), signed URL/cookie, Origin Access Control vers S3, WAF/Shield.</div>
+                    <div class="item"><span class="tag">CloudWatch</span> métriques, logs, alarms, dashboards, Synthetics et Application Signals. Logs Insights analyse les logs ; EventBridge/alarms automatisent une réponse.</div>
+                    <div class="item"><span class="tag">X-Ray</span> traces distribuées pour localiser latence et erreurs entre API, Lambda et services. CloudTrail = audit API ; Flow Logs = métadonnées réseau ; CloudWatch = fonctionnement.</div>
+                    <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> Piège Examen :</b> CloudFront est une couche cache/edge, pas un remplacement de Route 53. Route 53 health check + failover DNS ne garantit pas que les clients ignorent instantanément le TTL.</div>
+                </article>
+
+                <article class="card dr searchable">
+                    <h2><i class="fas fa-life-ring"></i> Résilience, backup &amp; DR</h2>
+                    <div class="item"><span class="tag">RTO</span> durée maximale d’indisponibilité acceptable ; <span class="tag">RPO</span> perte de données acceptable dans le temps. Les exigences métier fixent la solution, jamais l’inverse.</div>
+                    <table><thead><tr><th>Stratégie</th><th>RTO/RPO typiques</th><th>Coût / mécanisme</th></tr></thead><tbody>
+                        <tr><td>Backup &amp; Restore</td><td>Élevés / selon dernier backup</td><td>Le moins cher ; snapshots, S3, AWS Backup, reconstruction IaC.</td></tr>
+                        <tr><td>Pilot Light</td><td>RTO moyen, RPO bas</td><td>Données/réplication prêtes, compute réduit ; montée en capacité au sinistre.</td></tr>
+                        <tr><td>Warm Standby</td><td>Faibles / bas</td><td>Environnement réduit actif, scale-out et bascule DNS.</td></tr>
+                        <tr><td>Multi-site Active/Active</td><td>Très faibles</td><td>RTO/RPO minimaux, coût et complexité maximum ; réplication et conflits à traiter.</td></tr>
+                    </tbody></table>
+                    <div class="item"><span class="tag">AWS Backup</span> coffres centralisés, copies cross-account/cross-Region et vault lock pour conformité. Tester régulièrement les restaurations : une sauvegarde non restaurée n’est pas une stratégie DR.</div>
+                </article>
+
+                <article class="card finops searchable">
+                    <h2><i class="fas fa-coins"></i> FinOps &amp; Well-Architected</h2>
+                    <div class="item"><span class="tag">Cost Explorer/Budgets</span> analyser, prévoir et alerter ; un budget alerte mais ne bloque pas automatiquement l’utilisation.</div>
+                    <div class="item"><span class="tag">Tags</span> Cost Allocation Tags et comptes séparés rendent l’imputabilité possible. Enlever ressources orphelines, EBS snapshots anciens, Elastic IP inutilisées et NAT excessifs.</div>
+                    <div class="item"><span class="tag">Compute</span> Savings Plans/Reserved Instances pour charge stable ; Spot pour interruptible ; Graviton si compatible ; serverless lorsque charge variable et faible exploitation.</div>
+                    <div class="item"><span class="tag">Storage/network</span> Lifecycle S3, Intelligent-Tiering, compression, CloudFront, VPC endpoints S3/DynamoDB et réduction des transferts cross-AZ/cross-Region.</div>
+                    <div class="highlight"><b>Méthode SAA :</b> identifier le qualificatif (« moins cher », « sans opérations », « HA », « latence »), extraire contraintes, éliminer les distracteurs invalides, choisir le service managé qui satisfait exactement le besoin.</div>
+                </article>
+            </div>
+
+            <section class="table-section searchable">
+                <h2><i class="fas fa-table"></i> Matrice décisionnelle SAA-C03</h2>
+                <table><thead><tr><th>Exigence</th><th>Choix AWS</th><th>Pourquoi / distracteur fréquent</th></tr></thead><tbody>
+                    <tr><td>Système de fichiers POSIX partagé multi-AZ</td><td><b>EFS</b></td><td>NFS managé multi-AZ ; EBS est zonal et S3 est objet.</td></tr>
+                    <tr><td>Code déclenché par événement sans serveur</td><td><b>Lambda</b></td><td>À la demande ; EC2 implique patching et capacité.</td></tr>
+                    <tr><td>NoSQL mondial avec écritures multi-régions</td><td><b>DynamoDB Global Tables</b></td><td>Réplication bidirectionnelle managée ; éviter une synchronisation custom.</td></tr>
+                    <tr><td>Relationnel HA avec basculement</td><td><b>RDS/Aurora Multi-AZ</b></td><td>Standby/failover ; Read Replica seule n’est pas la HA primaire.</td></tr>
+                    <tr><td>Protection XSS/SQLi</td><td><b>AWS WAF</b></td><td>ALB, CloudFront ou API Gateway ; SG ne comprend pas le contenu HTTP.</td></tr>
+                    <tr><td>Hybride privé chiffré multi-VPC</td><td><b>Direct Connect + TGW + VPN/IPsec</b></td><td>DX seul n’est pas le chiffrement ; TGW évite le full mesh.</td></tr>
+                    <tr><td>Buffer de messages et reprise consumer</td><td><b>SQS + DLQ</b></td><td>Asynchrone et durable ; SNS seul est push/fan-out.</td></tr>
+                    <tr><td>Archive économique et immuable</td><td><b>S3 Glacier + Object Lock</b></td><td>Lifecycle/retention ; ne pas garder toutes les données en Standard.</td></tr>
+                </tbody></table>
+            </section>
+        </section>
+
+        <section id="professional" class="tab-panel" aria-labelledby="professional-tab">
+            <div class="panel-intro searchable">
+                <h2><i class="fas fa-building-shield"></i> Parcours Professional — SAP-C02</h2>
+                <p>Architecture d’entreprise, intégration hybride, gouvernance multi-comptes, amélioration de solutions existantes et migration/modernisation. La source indique 75 questions en 180 minutes, 65 notées, 10 pré-test et un seuil de 750/1 000.</p>
+                <div class="kpi-grid"><div class="kpi"><strong>26%</strong>Complexité org.</div><div class="kpi"><strong>29%</strong>Nouvelles solutions</div><div class="kpi"><strong>25%</strong>Amélioration</div><div class="kpi"><strong>20%</strong>Migration</div></div>
+            </div>
+            <div class="grid">
+                <article class="card governance searchable">
+                    <h2><i class="fas fa-compass"></i> SAP-C02 : axes de décision</h2>
+                    <div class="item"><span class="tag">Complexité organisationnelle — 26%</span> réduire le blast radius, déléguer proprement, isoler les workloads et appliquer une gouvernance centralisée.</div>
+                    <div class="item"><span class="tag">Nouvelles solutions — 29%</span> concevoir une architecture complète à partir des contraintes de sécurité, réseau, données, résilience, performance et coût.</div>
+                    <div class="item"><span class="tag">Amélioration — 25%</span> diagnostiquer une architecture existante, supprimer la dette opérationnelle, augmenter la résilience et optimiser le coût sans régression.</div>
+                    <div class="item"><span class="tag">Migration — 20%</span> choisir le bon 7R, réduire le downtime, traiter les dépendances et automatiser cutover, validation et rollback.</div>
+                    <div class="highlight"><b>Réflexe SAP :</b> plusieurs réponses peuvent être techniquement possibles. Retenir celle qui respecte toutes les contraintes, minimise l’effort opérationnel et limite le domaine d’impact d’une erreur.</div>
+                </article>
+
+                <article class="card governance searchable">
+                    <h2><i class="fas fa-sitemap"></i> Landing zone &amp; multi-comptes</h2>
+                    <div class="item"><span class="tag">Organizations</span> Root → OUs → comptes. Séparer management, log archive, security tooling, network/shared services, workloads dev/test/prod pour réduire le blast radius et clarifier la facturation.</div>
+                    <div class="item"><span class="tag">Control Tower</span> Automatise la landing zone, Account Factory et guardrails. Preventive guardrails = SCP ; detective guardrails = AWS Config. Une SCP bloque mais n’accorde jamais un droit IAM.</div>
+                    <div class="item"><span class="tag">IAM Identity Center</span> SSO centralisé vers les comptes et permission sets. Pour machine-to-machine, utiliser STS AssumeRole et des credentials temporaires, jamais une access key partagée.</div>
+                    <div class="item"><span class="tag">Audit central</span> Organization CloudTrail vers un compte log archive S3 avec bucket policy restrictive, Object Lock et séparation des rôles. Config Aggregator consolide la conformité ; GuardDuty admin agrège les findings.</div>
+                    <div class="item"><span class="tag">FinOps</span> AWS Budgets, Cost Categories/Allocation Tags et Billing Conductor pour visibilité et showback/chargeback entre business units.</div>
+                    <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> SAP Gotcha :</b> ne pas placer toutes les workloads dans un compte unique « pour simplifier ». Le multi-compte isole les permissions, quotas, logs, facturation et pannes ; une SCP mal appliquée peut toutefois casser les opérations d’un OU entier.</div>
+                </article>
+
+                <article class="card governance searchable">
+                    <h2><i class="fas fa-building-columns"></i> Landing zone : composants clés</h2>
+                    <div class="item"><span class="tag">Management account</span> conserver le minimum d’actions, activer MFA, ne pas y héberger de workload et protéger l’accès root.</div>
+                    <div class="item"><span class="tag">Log Archive</span> S3 central pour CloudTrail, Config et logs réseau ; bucket policy restrictive, Object Lock, versioning et accès d’écriture uniquement pour les services.</div>
+                    <div class="item"><span class="tag">Security Tooling</span> delegated administrators pour GuardDuty, Security Hub, Inspector, Macie et IAM Access Analyzer ; centraliser findings et automatiser leur traitement.</div>
+                    <div class="item"><span class="tag">Network / Shared Services</span> TGW, DNS Resolver, endpoints, inspection, Active Directory, CI/CD et services partagés dans des comptes dédiés.</div>
+                    <div class="item"><span class="tag">StackSets / Service Catalog</span> déployer des contrôles et ressources standardisés dans les OUs ; séparer les templates de plateforme des templates applicatifs.</div>
+                    <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> SAP Gotcha :</b> un guardrail préventif empêche l’action via SCP ; un guardrail détectif constate une dérive via Config. Un contrôle détectif ne bloque pas la création initiale.</div>
+                </article>
+
+                <article class="card network searchable">
+                    <h2><i class="fas fa-diagram-project"></i> Transit Gateway, DX &amp; Cloud WAN</h2>
+                    <div class="item"><span class="tag">TGW</span> Hub régional pour VPC attachments, VPN et Direct Connect. Utiliser plusieurs route tables TGW (prod/shared/inspection) pour segmentation ; propagation et associations sont distinctes.</div>
+                    <div class="item"><span class="tag">RAM</span> partager TGW, subnets ou autres ressources avec des comptes/OU sans créer de peering full mesh. Le partage ne contourne ni IAM ni routes.</div>
+                    <div class="item"><span class="tag">DX Gateway</span> relie des Direct Connect locations à VPC via transit/private VIF ; annoncer uniquement les préfixes nécessaires et respecter les limites BGP (la source cite 100 routes maximum dans ce contexte).</div>
+                    <div class="item"><span class="tag">Inspection VPC</span> TGW route table → appliance VPC/GWLB → retour symétrique. Centraliser AWS Network Firewall ou appliance partner sans oublier les routes aller/retour et les AZ.</div>
+                    <div class="item"><span class="tag">Cloud WAN</span> réseau global managé par segments et core network policy, utile quand l’entreprise combine régions, VPC, sites et besoins de segmentation à grande échelle.</div>
+                    <div class="architecture"><strong>Pattern :</strong> on-prem → DX/VPN → DXGW/TGW → inspection segment → workload VPC. VPN fournit le backup de DX ; deux tunnels terminés sur des AZ différentes apportent la résilience.</div>
+                    <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> SAP Gotcha :</b> DX est privé mais pas chiffré par défaut. Pour IPsec sur DX, combiner une public VIF + VPN public, ou une transit VIF + VPN à IP privée selon le design.</div>
+                </article>
+
+                <article class="card network searchable">
+                    <h2><i class="fas fa-globe-americas"></i> Hybrid DNS &amp; PrivateLink</h2>
+                    <div class="item"><span class="tag">Route 53 Resolver inbound</span> permet au DNS on-prem de résoudre les zones privées AWS via endpoints ENI. <span class="tag">Outbound</span> transmet les requêtes AWS vers les resolvers on-prem avec forwarding rules.</div>
+                    <div class="item"><span class="tag">Resolver rules</span> centraliser les règles dans un compte réseau et les partager avec RAM. Attention aux boucles de forwarding, à la résolution conditionnelle et aux security groups des endpoints.</div>
+                    <div class="item"><span class="tag">Private Hosted Zone</span> associer à plusieurs VPC (ou architecture centralisée selon le besoin). Une zone publique et privée de même nom ont des réponses différentes selon le point de résolution.</div>
+                    <div class="item"><span class="tag">PrivateLink</span> provider → NLB → endpoint service ; consumer → interface endpoint. Accès unidirectionnel au service, sans route réseau globale ni CIDR non chevauchant requis.</div>
+                    <div class="item"><span class="tag">Overlapping CIDR</span> éviter Peering/TGW IP routing. PrivateLink résout l’exposition service-to-service ; Private NAT peut traduire des flux bidirectionnels quand une vraie connectivité IP est nécessaire.</div>
+                    <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> SAP Gotcha :</b> PrivateLink n’est pas un transit VPC généraliste et ne fournit pas une résolution DNS « magique ». Publier le nom privé, configurer endpoint DNS et autoriser le SG/NLB.</div>
+                </article>
+
+                <article class="card network searchable">
+                    <h2><i class="fas fa-shuffle"></i> Réseau entreprise : routage &amp; inspection</h2>
+                    <div class="item"><span class="tag">TGW route tables</span> séparer les associations et propagations : prod peut atteindre shared-services, mais pas nécessairement dev ; documenter les routes effectives et les blackholes.</div>
+                    <div class="item"><span class="tag">Central egress</span> private subnets → TGW → egress VPC → NAT Gateway/Network Firewall → IGW. Déployer NAT et endpoints dans plusieurs AZ et contrôler le retour.</div>
+                    <div class="item"><span class="tag">Inspection</span> GWLB ou AWS Network Firewall pour filtrage east-west/north-south. La symétrie de routage est indispensable pour une appliance stateful.</div>
+                    <div class="item"><span class="tag">DX + VPN</span> Direct Connect fournit le chemin primaire ; VPN Site-to-Site redondant fournit le backup. Deux tunnels et deux points de terminaison évitent un SPOF.</div>
+                    <div class="item"><span class="tag">Cloud WAN</span> privilégier pour une politique réseau globale par segments ; TGW reste le choix régional classique pour connecter VPC, VPN et DX.</div>
+                    <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> SAP Gotcha :</b> une route annoncée dans TGW ne garantit pas le chemin retour. Vérifier les tables de routes VPC, TGW, appliance, DX/VPN et les filtres BGP dans les deux directions.</div>
+                </article>
+
+                <article class="card security searchable">
+                    <h2><i class="fas fa-key"></i> KMS, conformité &amp; cross-account</h2>
+                    <div class="item"><span class="tag">KMS key policy</span> dans un compte sécurité : autoriser l’utilisation par le compte consommateur, puis la policy IAM du rôle consommateur doit aussi permettre l’action. Les deux portes sont nécessaires.</div>
+                    <div class="item"><span class="tag">Multi-Region keys</span> clés répliquées avec même key material/logical key ID pour déchiffrer localement des données répliquées ; elles ne remplacent pas la stratégie de réplication ni les contrôles d’accès.</div>
+                    <div class="item"><span class="tag">S3 replication</span> SRR/CRR, versioning sur les deux buckets, IAM role de réplication, KMS grants/key policy cross-account et ownership/ACL adaptés. Re-encryption KMS nécessaire lors d’un changement de clé.</div>
+                    <div class="item"><span class="tag">SCP vs key policy</span> une SCP peut bloquer l’appel KMS même si key policy et IAM autorisent ; la policy KMS ne peut pas outrepasser une SCP.</div>
+                    <div class="item"><span class="tag">Compliance</span> Config conformance packs, Security Hub standards, Macie pour PII S3, Audit Manager pour preuves et CloudTrail Lake pour analyse des événements.</div>
+                    <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> SAP Gotcha :</b> cocher « encryption enabled » ne suffit pas. Vérifier région de la clé, grants, key policy, rôle de réplication, destination cross-account et capacité à restaurer.</div>
+                </article>
+
+                <article class="card dr searchable">
+                    <h2><i class="fas fa-bolt"></i> DR d’entreprise : RTO/RPO</h2>
+                    <div class="item"><span class="tag">RTO</span> temps de remise en service ; <span class="tag">RPO</span> fenêtre de perte. Définir les objectifs par application et classer les dépendances (DNS, IAM, secrets, réseau, données, observabilité).</div>
+                    <table><thead><tr><th>Modèle</th><th>Implémentation AWS</th><th>Arbitrage</th></tr></thead><tbody>
+                        <tr><td>Backup &amp; restore</td><td>AWS Backup, S3 CRR, IaC, snapshots cross-Region</td><td>Moins cher, RTO élevé ; valider les runbooks.</td></tr>
+                        <tr><td>Pilot light</td><td>RDS/Aurora réplica, données synchronisées, stack minimale</td><td>RPO bas, compute à démarrer ; activation orchestrée.</td></tr>
+                        <tr><td>Warm standby</td><td>Stack réduite active, ASG scale-out, Route 53 failover</td><td>RTO faible et coût intermédiaire.</td></tr>
+                        <tr><td>Multi-site active/active</td><td>Global Accelerator/Route 53, Global Tables/Aurora Global</td><td>RTO/RPO minimaux, coût/complexité et cohérence élevés.</td></tr>
+                    </tbody></table>
+                    <div class="item"><span class="tag">Resilience</span> Multi-AZ traite une panne AZ ; multi-Region traite une panne régionale. Tester failover, quotas, certificats, secrets, dépendances tierces et retour arrière.</div>
+                    <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> SAP Gotcha :</b> « presque zéro RTO/RPO » ne signifie pas automatiquement active/active : si les objectifs sont moins stricts, Pilot Light/Warm Standby est la réponse économique et opérationnelle supérieure.</div>
+                </article>
+
+                <article class="card dr searchable">
+                    <h2><i class="fas fa-heart-pulse"></i> Résilience opérationnelle</h2>
+                    <div class="item"><span class="tag">Elastic Disaster Recovery</span> réplication continue de serveurs vers une staging area et lancement de l’infrastructure de reprise à la demande ; utile pour rehost DR avec RTO réduit.</div>
+                    <div class="item"><span class="tag">Resilience Hub</span> évalue les objectifs de résilience d’une application, identifie les écarts et propose des recommandations ; il ne remplace pas les tests de failover.</div>
+                    <div class="item"><span class="tag">AWS Backup Vault Lock</span> impose une rétention immuable en mode compliance ; combiner copies cross-account/cross-Region et politiques Organizations.</div>
+                    <div class="item"><span class="tag">FIS</span> Fault Injection Service teste volontairement des défaillances ; limiter l’expérimentation par IAM, tags, stop conditions et fenêtres approuvées.</div>
+                    <div class="item"><span class="tag">Runbook</span> inclure quotas, IAM, secrets, certificats ACM, DNS/TTL, réplication, dépendances tierces, observabilité, validation métier et procédure de retour arrière.</div>
+                    <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> SAP Gotcha :</b> une architecture multi-AZ ne suffit pas si le déploiement, les quotas régionaux, les secrets ou les permissions de restauration restent dans une seule région.</div>
+                </article>
+
+                <article class="card deployment searchable">
+                    <h2><i class="fas fa-road"></i> Migration 7R &amp; modernisation</h2>
+                    <table><thead><tr><th>7R</th><th>Décision</th><th>Exemple AWS</th></tr></thead><tbody>
+                        <tr><td>Retain</td><td>Garder temporairement on-prem</td><td>Dépendance ou conformité non prête.</td></tr>
+                        <tr><td>Retire</td><td>Supprimer</td><td>Application obsolète ou redondante.</td></tr>
+                        <tr><td>Rehost</td><td>Lift and shift</td><td>Application Migration Service (MGN) vers EC2.</td></tr>
+                        <tr><td>Relocate</td><td>Déplacer sans refonte</td><td>VMware Cloud on AWS, réhébergement de plateforme.</td></tr>
+                        <tr><td>Replatform</td><td>Optimiser légèrement</td><td>Oracle/MySQL vers RDS ; conteneur vers ECS/Fargate.</td></tr>
+                        <tr><td>Repurchase</td><td>Remplacer par SaaS</td><td>Adopter une solution commerciale cloud.</td></tr>
+                        <tr><td>Refactor / re-architect</td><td>Cloud-native</td><td>Découpler vers Lambda, EventBridge, SQS, DynamoDB.</td></tr>
+                    </tbody></table>
+                    <div class="item"><span class="tag">MGN</span> réplication bloc continue via agent et staging area ; cutover avec downtime réduit. <span class="tag">DMS</span> full load + CDC pour bases hétérogènes ; <span class="tag">SCT</span> conversion de schéma et assessment.</div>
+                    <div class="item"><span class="tag">DataSync</span> NAS/NFS/SMB vers S3/EFS/FSx via agent, accéléré sur réseau ; <span class="tag">Snowball/Snowcone</span> transfert physique lorsque bande passante insuffisante ou volume massif.</div>
+                    <div class="item"><span class="tag">Modernisation</span> conteneuriser sur ECS/EKS, exécuter Fargate, API Gateway/Lambda pour serverless, EventBridge pour événements et SQS/SNS pour asynchronisme.</div>
+                    <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> SAP Gotcha :</b> DMS migre les données mais ne convertit pas entièrement un moteur propriétaire : utiliser SCT pour Oracle→PostgreSQL, puis traiter manuellement les incompatibilités SQL.</div>
+                </article>
+
+                <article class="card deployment searchable">
+                    <h2><i class="fas fa-file-code"></i> Migration : factory &amp; cutover</h2>
+                    <div class="item"><span class="tag">Discover</span> Migration Hub, Application Discovery Service et Migration Evaluator inventorient dépendances, utilisation, coûts et vagues de migration.</div>
+                    <div class="item"><span class="tag">Factory</span> landing zone, comptes, réseau, IAM, logging et templates IaC prêts avant la première vague. Standardiser AMI, tags, backup, monitoring et rollback.</div>
+                    <div class="item"><span class="tag">Data</span> full load → CDC → validation des compteurs/checksums → gel court → cutover → observation. Mesurer lag DMS, erreurs applicatives et capacité cible.</div>
+                    <div class="item"><span class="tag">Files</span> DataSync pour transferts récurrents et vérifiés ; Storage Gateway pour accès hybride ; Snowball/Snowcone quand la bande passante rend le transfert réseau trop long.</div>
+                    <div class="item"><span class="tag">Modernize</span> strangler pattern, façade API, anti-corruption layer, événements de domaine et feature flags permettent de remplacer progressivement sans big bang.</div>
+                    <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> SAP Gotcha :</b> réduire le downtime ne signifie pas supprimer la validation. Une migration sans mesure de CDC lag, tests de cohérence et plan de rollback n’est pas maîtrisée.</div>
+                </article>
+
+                <article class="card compute searchable">
+                    <h2><i class="fas fa-cubes"></i> Architecture event-driven &amp; API</h2>
+                    <div class="item"><span class="tag">EventBridge</span> bus central et règles par événement pour découpler domaines. Archive/replay et schema registry aident la gouvernance des contrats.</div>
+                    <div class="item"><span class="tag">SQS</span> buffer de back-pressure avec visibilité, retry et DLQ. Garantir idempotence car Standard est at-least-once ; FIFO seulement si ordre/déduplication nécessaires.</div>
+                    <div class="item"><span class="tag">SNS</span> fan-out vers plusieurs consommateurs ; combiner SNS→SQS pour isoler les vitesses de traitement. <span class="tag">Step Functions</span> gère workflow et compensation.</div>
+                    <div class="item"><span class="tag">ECS/EKS/Fargate</span> choisir ECS pour simplicité AWS, EKS pour exigences Kubernetes/portabilité ; Fargate réduit les opérations mais n’est pas toujours le meilleur coût pour capacité stable.</div>
+                    <div class="architecture"><strong>Pattern de migration :</strong> API facade → strangler routing → nouveau service → EventBridge/SQS → réplication/CDC → observabilité. Déployer blue/green, canary et feature flags pour limiter le risque.</div>
+                    <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> SAP Gotcha :</b> un bus d’événements n’est pas une file de travail. Utiliser EventBridge pour router, SQS pour retenir jusqu’à consommation et Step Functions pour orchestrer plusieurs étapes.</div>
+                </article>
+
+                <article class="card finops searchable">
+                    <h2><i class="fas fa-scale-balanced"></i> Améliorer une solution existante</h2>
+                    <div class="item"><span class="tag">Well-Architected</span> analyser Operational Excellence, Security, Reliability, Performance Efficiency, Cost Optimization et Sustainability ; utiliser AWS Trusted Advisor et les métriques réelles avant de changer.</div>
+                    <div class="item"><span class="tag">Observability</span> centraliser CloudWatch cross-account, X-Ray, CloudTrail organization trail, Config Aggregator et Security Hub. Corréler logs, traces, métriques et événements de déploiement.</div>
+                    <div class="item"><span class="tag">Performance</span> cache CloudFront/ElastiCache, read replicas, DynamoDB partition design, async queues, compression et placement régional ; ne pas scaler verticalement par réflexe.</div>
+                    <div class="item"><span class="tag">Cost</span> rightsizing, Graviton, Savings Plans, Spot, S3 Lifecycle, endpoints, réduction du trafic cross-AZ et extinction des environnements non production.</div>
+                    <div class="item"><span class="tag">Operations</span> IaC CloudFormation/CDK/Terraform, pipelines CI/CD, immutable AMI, Systems Manager Patch Manager/Automation et runbooks testés plutôt que scripts manuels.</div>
+                    <div class="highlight"><b>Posture SAP :</b> plusieurs réponses peuvent fonctionner ; choisir celle qui satisfait toutes les contraintes avec le moins d’effort opérationnel, le plus petit blast radius et une sécurité explicite.</div>
+                </article>
+
+                <article class="card analytics searchable">
+                    <h2><i class="fas fa-chart-line"></i> Data platform &amp; analytics</h2>
+                    <div class="item"><span class="tag">S3 data lake</span> zones raw/clean/curated, formats colonne Parquet, partitionnement et lifecycle ; gouverner l’accès par Lake Formation plutôt que par des buckets publics.</div>
+                    <div class="item"><span class="tag">Glue</span> Data Catalog, crawlers et ETL serverless ; <span class="tag">Athena</span> SQL sans cluster sur S3 ; contrôler le coût en limitant les scans par partitions et formats compressés.</div>
+                    <div class="item"><span class="tag">Redshift</span> warehouse relationnel analytique ; RA3 sépare compute/storage, Spectrum interroge S3. <span class="tag">EMR</span> convient aux frameworks big data nécessitant davantage de contrôle.</div>
+                    <div class="item"><span class="tag">Kinesis / MSK</span> Kinesis est AWS-native et serverless pour streaming ; MSK convient à la compatibilité Kafka et au contrôle de l’écosystème Kafka.</div>
+                    <div class="item"><span class="tag">OpenSearch</span> recherche, logs et agrégations quasi temps réel ; <span class="tag">QuickSight</span> visualisation BI. Séparer stockage durable, traitement et index de recherche.</div>
+                    <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> SAP Gotcha :</b> S3 est le stockage du data lake, pas le moteur de requête. Athena/Glue/Lake Formation apportent respectivement requête, catalogue/ETL et gouvernance.</div>
+                </article>
+            </div>
+
+            <section class="table-section searchable">
+                <h2><i class="fas fa-table"></i> SAP-C02 — matrice de scénarios</h2>
+                <table><thead><tr><th>Mot-clé scénario</th><th>Architecture préférée</th><th>Réponse à écarter</th></tr></thead><tbody>
+                    <tr><td>Landing zone multi-comptes et conformité</td><td>Control Tower + Organizations/OUs + SCP + Config + Identity Center</td><td>Créer manuellement des utilisateurs et comptes sans guardrails.</td></tr>
+                    <tr><td>Beaucoup de VPC, segmentation et hybride</td><td>TGW + RAM + route tables segmentées + DXGW/VPN</td><td>Full mesh de VPC Peering non transitif.</td></tr>
+                    <tr><td>Résolution DNS on-prem ↔ AWS</td><td>Route 53 Resolver inbound/outbound endpoints + forwarding rules</td><td>Serveur DNS EC2 isolé sans haute disponibilité.</td></tr>
+                    <tr><td>CIDR qui se chevauchent, accès à un service</td><td>PrivateLink via NLB/endpoint service</td><td>Peering ou TGW, impossibles avec routes conflictuelles.</td></tr>
+                    <tr><td>RTO/RPO faibles mais budget maîtrisé</td><td>Pilot Light ou Warm Standby selon cible</td><td>Active/active multi-Region par défaut.</td></tr>
+                    <tr><td>DB hétérogène, downtime minimal</td><td>DMS full load + CDC, SCT pour schéma</td><td>Dump/restore manuel seul pendant une longue fenêtre.</td></tr>
+                    <tr><td>Logs d’audit impossibles à supprimer</td><td>Organization CloudTrail → S3 central + Object Lock</td><td>Logs conservés uniquement dans le compte workload.</td></tr>
+                    <tr><td>Clés centralisées cross-account</td><td>KMS key policy + IAM allow + SCP/Grant vérifiés</td><td>Supposer qu’une IAM policy seule autorise une CMK distante.</td></tr>
+                </tbody></table>
+            </section>
+
+            <section class="table-section searchable">
+                <h2><i class="fas fa-briefcase"></i> Cas d’entreprise — décisions à haute valeur</h2>
+                <details class="security-case searchable" open>
+                    <summary><i class="fas fa-bank"></i> Banque mondiale : séparation réglementaire et reprise</summary>
+                    <div class="case-content">
+                        <h3><i class="fas fa-bullseye"></i> Contraintes</h3>
+                        <ul><li>Comptes prod séparés par région/régulateur, journaux immuables et accès opérateur fédéré.</li><li>RPO de quelques minutes et RTO inférieur à 30 minutes pour les bases critiques.</li></ul>
+                        <h3><i class="fas fa-network-wired"></i> Architecture</h3>
+                        <div class="architecture"><strong>Control Tower</strong> → OUs réglementaires → Identity Center ; <strong>CloudTrail/Config/GuardDuty/Security Hub</strong> centralisés ; <strong>Aurora Global/DynamoDB Global Tables</strong> selon le modèle de données ; <strong>Route 53/Global Accelerator</strong> pour le failover.</div>
+                        <div class="gotcha"><b>SAP Gotcha :</b> la réplication multi-région n’est pas une garantie de cohérence transactionnelle universelle. Choisir le datastore selon les writes, conflits et exigences ACID.</div>
+                    </div>
+                </details>
+                <details class="network-case searchable">
+                    <summary><i class="fas fa-industry"></i> Groupe industriel : datacenter, CIDR chevauchants et modernisation</summary>
+                    <div class="case-content">
+                        <h3><i class="fas fa-bullseye"></i> Contraintes</h3>
+                        <ul><li>Plusieurs sites avec CIDR historiques identiques, liaison DX principale et VPN de secours.</li><li>Exposer progressivement des APIs migrées sans connecter les réseaux entiers.</li></ul>
+                        <h3><i class="fas fa-network-wired"></i> Architecture</h3>
+                        <div class="architecture"><strong>DX/VPN</strong> → <strong>DXGW/TGW</strong> pour les préfixes non conflictuels ; <strong>PrivateLink</strong> (NLB + endpoint service) pour les services aux CIDR conflictuels ; <strong>MGN/DMS/SCT</strong> pour migrer ; <strong>ECS/Fargate + EventBridge/SQS</strong> pour moderniser.</div>
+                        <div class="gotcha"><b>SAP Gotcha :</b> PrivateLink expose un service, il ne résout pas une dépendance qui exige une connectivité IP bidirectionnelle complète. Pour cette dernière, examiner Private NAT et la re-numérotation.</div>
+                    </div>
+                </details>
+                <details class="searchable">
+                    <summary><i class="fas fa-cart-shopping"></i> Retail global : trafic variable et coûts</summary>
+                    <div class="case-content">
+                        <h3><i class="fas fa-bullseye"></i> Contraintes</h3>
+                        <ul><li>Pics saisonniers, catalogue mondial, recherche rapide, données client chiffrées et équipes autonomes.</li><li>Éviter le sur-provisionnement et isoler les coûts par domaine.</li></ul>
+                        <h3><i class="fas fa-network-wired"></i> Architecture</h3>
+                        <div class="architecture"><strong>CloudFront + WAF</strong> en edge → <strong>API Gateway/Lambda ou ECS</strong> → <strong>DynamoDB Global Tables</strong> pour accès clé-valeur mondial ; <strong>SQS/EventBridge</strong> pour commandes ; <strong>Cost Allocation Tags/Budgets</strong> pour FinOps.</div>
+                        <div class="gotcha"><b>SAP Gotcha :</b> ne pas choisir une base relationnelle uniquement parce que les données sont « importantes ». Le pattern d’accès, les transactions et la cohérence décident du service.</div>
+                    </div>
+                </details>
+            </section>
+        </section>
+    </main>
+    <footer>Référence de révision personnelle — vérifiez toujours les limites et fonctionnalités dans la documentation AWS de votre région et de la version d’examen.</footer>
+</div>
+
+<script>
+    (function () {
+        'use strict';
+        const searchInput = document.getElementById('global-search');
+        const clearButton = document.getElementById('clear-search');
+        const status = document.getElementById('search-status');
+        const themeButton = document.getElementById('theme-toggle');
+        const tabs = Array.from(document.querySelectorAll('.tab-button'));
+        const panels = Array.from(document.querySelectorAll('.tab-panel'));
+        const searchable = Array.from(document.querySelectorAll('.searchable'));
+
+        function activateTab(id) {
+            tabs.forEach(function (button) {
+                const active = button.dataset.tab === id;
+                button.classList.toggle('active', active);
+                button.setAttribute('aria-selected', String(active));
+            });
+            panels.forEach(function (panel) { panel.classList.toggle('active', panel.id === id); });
+        }
+
+        tabs.forEach(function (button) {
+            button.setAttribute('aria-selected', String(button.classList.contains('active')));
+            button.addEventListener('click', function () { activateTab(button.dataset.tab); });
+        });
+
+        function applySearch() {
+            const query = searchInput.value.trim().toLocaleLowerCase('fr');
+            let total = 0;
+            const counts = { associate: 0, professional: 0 };
+            searchable.forEach(function (element) {
+                const matches = !query || element.textContent.toLocaleLowerCase('fr').includes(query);
+                element.classList.toggle('hidden', !matches);
+                if (matches && query) {
+                    total += 1;
+                    const panel = element.closest('.tab-panel');
+                    if (panel) counts[panel.id] += 1;
+                }
+            });
+            if (!query) {
+                status.textContent = 'Recherche dans les deux parcours de révision.';
+                searchable.forEach(function (element) { element.classList.remove('hidden'); });
+                return;
+            }
+            status.textContent = total + ' section(s) trouvée(s) — Basics : ' + counts.associate + ' · SAP-C02 : ' + counts.professional;
+            if (counts.associate || counts.professional) {
+                activateTab(counts.professional > counts.associate ? 'professional' : 'associate');
+            }
+        }
+
+        searchInput.addEventListener('input', applySearch);
+        clearButton.addEventListener('click', function () { searchInput.value = ''; searchInput.focus(); applySearch(); });
+        themeButton.addEventListener('click', function () {
+            document.body.classList.toggle('dark');
+            const dark = document.body.classList.contains('dark');
+            localStorage.setItem('aws-study-theme', dark ? 'dark' : 'light');
+            themeButton.innerHTML = dark ? '<i class="fas fa-sun"></i> Thème clair' : '<i class="fas fa-moon"></i> Thème sombre';
+        });
+        if (localStorage.getItem('aws-study-theme') === 'dark') {
+            document.body.classList.add('dark');
+            themeButton.innerHTML = '<i class="fas fa-sun"></i> Thème clair';
+        }
+    }());
+</script>
+</body>
+</html>
