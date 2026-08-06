@@ -30,6 +30,12 @@ Fiche de révision interactive dédiée à l’architecture cloud AWS et aux cer
 
 Aucune installation ou compilation n’est nécessaire. Ouvrez simplement `index.html` dans un navigateur moderne.
 
+## Page en ligne
+
+La fiche est disponible en ligne à l’adresse suivante :
+
+<https://alvincangou.github.io/aws-study/>
+
 Pour lancer le projet avec un serveur local, vous pouvez par exemple utiliser l’une des commandes suivantes depuis la racine du dépôt :
 
 ```bash
