@@ -271,6 +271,27 @@
                     <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> Piège Examen :</b> « scale to zero, stateless, trafic irrégulier » pointe vers Lambda/API Gateway ou Fargate/serverless. Une instance Spot n’est jamais le seul composant d’une base ou d’un service critique sans reprise.</div>
                 </article>
 
+                <article class="card compute searchable">
+                    <h2><i class="fas fa-arrows-spin"></i> Auto Scaling EC2 : types de scaling &amp; scheduled</h2>
+                    <div class="item"><span class="tag">Scaling manuel</span> modifier directement la capacité <code>desired</code> de l’ASG (console/CLI) pour une opération ponctuelle ; sans alarme, aucune réaction automatique ensuite.</div>
+                    <div class="item"><span class="tag">Simple scaling</span> une alarme CloudWatch déclenche un ajustement <b>fixe</b> (ex. <code>CPUUtilization &gt; 70&nbsp;%</code> → +1) puis un <code>cooldown</code> obligatoire évite les oscillations ; adapté à une charge homogène, pas aux pics d’amplitude variable.</div>
+                    <div class="item"><span class="tag">Step scaling</span> plusieurs étapes selon l’amplitude du dépassement (ex. ≤ 75&nbsp;% ⇒ rien, 75–85&nbsp;% ⇒ +1, &gt; 85&nbsp;% ⇒ +3), avec des actions <code>scale in</code> dédiées ; plus fin que simple scaling, cooldown non obligatoire.</div>
+                    <div class="item"><span class="tag">Target tracking</span> on déclare la <b>cible d’une métrique</b> (ex. CPU moyen 60&nbsp;%, <code>ALBRequestCountPerTarget</code>) et l’ASG calcule puis applique lui-même les ajustements : approche recommandée par défaut quand une métrique suffit, avec scale in/out automatiques et prévention des oscillations.</div>
+                    <div class="item"><span class="tag">Scheduled scaling</span> pour une charge <b>prévisible dans le temps</b> : l’action fixe <code>min / desired / max</code> à une date-heure précise (one-time) ou en récurrence cron (<code>0 9 ? * MON-FRI</code>), fuseau configurable (défaut UTC) et <b>aucune alarme requise</b>. Cas typiques : horaires de bureau, batchs de nuit, ventes flash, extinction hors-pics pour réduire les coûts. Limite clé : c’est <b>statique</b> — une surcharge imprévue ne déclenche rien ; combiner avec target tracking ou step scaling pour la partie réactive.</div>
+                    <div class="item"><span class="tag">Predictive scaling</span> le machine learning analyse l’historique de l’ASG (≈14&nbsp;j de métriques) et programme les capacités à venir ; se combine avec target tracking (mode forecast-and-scale) pour absorber le résiduel imprévu. Idéal pour des cycles récurrents avec montée progressive.</div>
+                    <div class="item"><span class="tag">Warm-up &amp; cooldown</span> <code>warm-up</code> retarde la prise en compte des nouvelles instances dans les métriques ; <code>cooldown</code> évite les allers-retours (simple scaling). Les <b>termination policies</b> (OldestInstance, NewestInstance, ClosestToNextInstanceHour, AZRebalance) choisissent l’instance retirée en scale-in.</div>
+                    <table><thead><tr><th>Type</th><th>Déclencheur</th><th>Contexte idéal</th><th>Limite clé</th></tr></thead><tbody>
+                        <tr><td><b>Manuel</b></td><td><code>desired</code> modifié à la main</td><td>Opération ponctuelle / maintenance</td><td>Pas de réaction automatique</td></tr>
+                        <tr><td><b>Simple</b></td><td>1 alarme, ajustement fixe</td><td>Charge homogène et tolérante</td><td>Cooldown long, pas d’ajustement fin</td></tr>
+                        <tr><td><b>Step</b></td><td>Alarmes par paliers</td><td>Pics d’amplitude variable</td><td>Steps à configurer manuellement</td></tr>
+                        <tr><td><b>Target tracking</b></td><td>Métrique cible déclarée</td><td>Pilotage par une métrique simple</td><td>Une métrique par politique</td></tr>
+                        <tr><td><b>Scheduled</b></td><td>Date-heure / cron</td><td>Charge prévisible dans le temps</td><td>Statique, ne se déclenche pas sur le réel</td></tr>
+                        <tr><td><b>Predictive</b></td><td>ML sur historique</td><td>Cycles récurrents, montées progressives</td><td>Nécessite de l’historique et du suivi</td></tr>
+                    </tbody></table>
+                    <div class="highlight"><b>Réflexe :</b> mesurer d’abord le pattern réel (CloudWatch), puis choisir : prévisible → scheduled/predictive ; réactif → target tracking par défaut ; précis par paliers → step ; ponctuel → manuel. Scheduled et predictive complètent, ils ne remplacent pas une réponse réactive.</div>
+                    <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> Piège Examen :</b> une action scheduled est <b>statique</b> : elle applique une capacité à l’heure T et ne constate pas la charge réelle, donc un pic imprévu n’est pas couvert. Le remplacement d’une instance «&nbsp;unhealthy&nbsp;» (health check EC2/ELB) maintient la capacité prévue : ce n’est pas du scaling.</div>
+                </article>
+
                 <article class="card database searchable">
                     <h2><i class="fas fa-database"></i> Bases de données &amp; caches</h2>
                     <div class="item"><span class="tag">RDS Multi-AZ</span> haute disponibilité avec réplica standby synchrone et failover ; le standby n’est pas une cible de lecture. Read Replicas servent à scaler les lectures et peuvent être promues.</div>
@@ -293,6 +314,23 @@
                     </tbody></table>
                     <div class="item"><span class="tag">Kinesis</span> Data Streams pour événements temps réel avec shards/capacité ; Firehose pour livraison managée vers S3/Redshift/OpenSearch ; Analytics pour SQL streaming. Kafka managé = Amazon MSK.</div>
                     <div class="highlight"><b>Pattern robuste :</b> producteur → SNS/EventBridge → plusieurs SQS DLQ → consumers idempotents. Une DLQ facilite l’analyse sans perdre les messages après des retries épuisés.</div>
+                </article>
+
+                <article class="card messaging searchable">
+                    <h2><i class="fas fa-water"></i> Kinesis Data Services &amp; streaming</h2>
+                    <div class="item"><span class="tag">Kinesis Data Streams</span> le streaming <b>temps réel</b> : les données sont ingérées dans des <b>shards</b> (1&nbsp;Mo/s d’écriture, 2&nbsp;Mo/s de lecture par shard) et consommées en <b>pull</b> (KCL, Lambda, EMR, Spark, Flink). L’ordre est garanti <b>par shard</b> grâce à la <code>partition key</code> : une même clé aboutit toujours au même shard. Rétention 24&nbsp;h par défaut jusqu’à <b>365&nbsp;j</b>, mode <b>at-least-once</b> (consommateurs idempotents) ; redimensionner le débit par <code>SplitShard</code>/<code>MergeShards</code> et Enhanced Fan-Out (2&nbsp;Mo/s par consumer) pour réduire la latence.</div>
+                    <div class="item"><span class="tag">Kinesis Data Firehose</span> livraison managée <b>near real-time</b> : aucun code consommateur, un buffer (1&nbsp;Mo à 128&nbsp;Mo, 60 à 900&nbsp;s) est vidé vers <b>S3, Redshift</b> (via S3), <b>OpenSearch, Splunk</b> ou un endpoint HTTP personnalisé. Transformation <code>Lambda</code> optionnelle, compression (gzip/snappy/Parquet) et partitionnement S3 automatiques.</div>
+                    <div class="item"><span class="tag">Kinesis Data Analytics</span> analyse <b>en continu</b> des flux : SQL streamé (version héritée) ou <b>Studio / Apache Flink managé</b> (Java, Scala, SQL, ML) ; sorties vers S3, Firehose ou Data Streams, avec fenêtres, alertes et enrichissement.</div>
+                    <div class="item"><span class="tag">Kinesis Video Streams</span> ingestion de flux <b>vidéo</b> (caméras, IoT) pour lecture/archivage HLS, sessions temps réel (WebRTC) et analyse par <b>Rekognition Video</b> ; fragments horodatés adressables.</div>
+                    <div class="item"><span class="tag">MSK</span> alternative Kafka managée : brokers, connecteurs et API Kafka quand l’écosystème existant exige la compatibilité ou un contrôle plus fin.</div>
+                    <table><thead><tr><th>Service</th><th>Modèle</th><th>Cas d’usage typique</th></tr></thead><tbody>
+                        <tr><td><b>Data Streams</b></td><td>Ingestion + consommation pull (shards)</td><td>Événements temps réel, ordre par clé, reprise par consumer</td></tr>
+                        <tr><td><b>Data Firehose</b></td><td>Livraison push managée avec buffer</td><td>Logs/événements vers S3, Redshift, OpenSearch sans code</td></tr>
+                        <tr><td><b>Data Analytics</b></td><td>SQL / Flink en continu</td><td>Agrégations, fenêtres, alertes, ML sur les flux</td></tr>
+                        <tr><td><b>Video Streams</b></td><td>Ingestion vidéo et fragments</td><td>Caméras, vision par ordinateur, archivage vidéo</td></tr>
+                    </tbody></table>
+                    <div class="highlight"><b>Pattern streaming :</b> producteur → Data Streams (temps réel, trié par partition key) → consommateurs Lambda/EMR/Flink + Data Analytics pour l’analyse, ou Data Firehose pour livrer quasi temps réel vers S3/Redshift/OpenSearch, analysé ensuite avec Athena/Glue.</div>
+                    <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> Piège Examen :</b> Firehose bufferise et pousse (push) : ce n’est pas un flux consommable en temps réel par vos applications. Pour cela, Data Streams en <b>pull</b>. L’ordre n’est garanti que <b>par shard</b>, jamais globalement comme SQS FIFO.</div>
                 </article>
 
                 <article class="card network searchable">
