@@ -1116,9 +1116,10 @@
                     </article>
 
                     <article class="card compute searchable">
-                        <h2><i class="fas fa-cubes"></i> Conteneurs AWS : ECS, EKS &amp; Fargate Deep Dive</h2>
-                        <div class="item"><span class="tag">AWS Fargate</span> <b>Moteur de calcul serverless pour conteneurs</b> : alloue CPU et mémoire à la demande et supprime la gestion opérationnelle (provisioning, patching OS, scaling de clusters ou VMs). <b>Fargate n'est pas un orchestrateur autonome</b> : c'est la couche d'exécution (compute engine) qui s'enfiche directement dans <b>Amazon ECS</b> et <b>Amazon EKS</b>.</div>
-                        <div class="item"><span class="tag">Amazon ECS (Compute Options)</span> orchestrateur de conteneurs natif AWS, simple et intégré :
+                        <h2><i class="fas fa-cubes"></i> Conteneurs AWS : ECS, EKS, App Runner &amp; Fargate Deep Dive</h2>
+                        <div class="item"><span class="tag">AWS Fargate</span> <b>Moteur de calcul serverless (« Le Muscle », pas un orchestrateur autonome) :</b> alloue CPU et mémoire à la demande et masque toute l'infrastructure (serveurs, OS, patchs, scaling de VM). <b>Principe fondamental :</b> Fargate n'a aucune API ni console directe pour lancer des conteneurs isolés, aucun routage web natif ni d'autoscaling autonome. C'est le moteur d'exécution (le « muscle ») qui doit impérativement être instruit et piloté par un orchestrateur (le « cerveau ») : <b>Amazon ECS</b> ou <b>Amazon EKS</b>.</div>
+                        <div class="item"><span class="tag">AWS App Runner</span> <b>Conteneurs Web Serverless managés (équivalent Google Cloud Run) :</b> plateforme PaaS tout-en-un entièrement gérée pour applications et APIs web. Déploiement direct en un clic depuis code source ou image ECR, attribution d'URL HTTPS, certificats TLS, équilibrage de charge et <b>scale-to-zero</b> automatiques sans gérer aucun orchestrateur (ni ECS, ni EKS, ni cluster).</div>
+                        <div class="item"><span class="tag">Amazon ECS (Compute Options)</span> orchestrateur de conteneurs natif AWS, simple et hautement intégré :
                             <ul>
                                 <li><b>AWS Fargate</b> : conteneurs serverless avec zéro gestion de serveurs sous-jacents.</li>
                                 <li><b>Amazon EC2 Instances</b> : machines virtuelles traditionnelles gérées par le client (Capacity Providers, Auto Scaling Groups, AMI et patchs OS).</li>
@@ -1136,7 +1137,51 @@
                         </div>
                         <div class="item"><span class="tag">ECS IAM Roles</span> <b>Task Role</b> = permissions accordées au code applicatif du conteneur (S3, DynamoDB) ; <b>Task Execution Role</b> = permissions accordées à l'agent ECS (pull d'images ECR, envoi des logs CloudWatch, déchiffrement de secrets KMS/SSM).</div>
                         <div class="item"><span class="tag">ECS Networking</span> mode <code>awsvpc</code> recommandé (chaque tâche reçoit sa propre ENI et Security Group dédié, obligatoire sur Fargate).</div>
-                        <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> Piège Examen Conteneurs :</b> Fargate = moteur de calcul (pas d'orchestration) ; ECS = simplicité native AWS ; EKS = standard Kubernetes &amp; portabilité ; Karpenter = autoscaling de nœuds EKS dynamique direct sans ASG.</div>
+                        <div class="item"><span class="tag">Arbitrage : ECS + Fargate vs App Runner (équiv. Cloud Run)</span> Pourquoi basculer d'App Runner vers ECS + Fargate ?
+                            <ul>
+                                <li><b>Workloads non-HTTP :</b> App Runner et Cloud Run sont conçus pour les requêtes/réponses web. ECS gère les workers d'arrière-plan, consommateurs de files (SQS, Kafka/MSK), tâches cron planifiées et pipelines batch.</li>
+                                <li><b>Multi-conteneurs (Sidecar Pattern) :</b> App Runner isole un conteneur unique. Les tâches ECS permettent la colocalisation de conteneurs partageant <code>localhost</code> (ex. application + proxy Envoy + collecteur de logs/métriques Datadog/OTel).</li>
+                                <li><b>Contrôle réseau fin (<code>awsvpc</code>) :</b> ENI et Security Group dédiés par tâche ECS, permettant une micro-segmentation VPC granulaire, sous-réseaux privés stricts et intégration Service Mesh / PrivateLink.</li>
+                                <li><b>FinOps &amp; Fort Volume (24/7) :</b> Le coût managé d'App Runner peut être élevé en continu ; ECS offre <b>Fargate Spot</b> (jusqu'à -70%), Savings Plans et Capacity Providers mixtes.</li>
+                            </ul>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Paradigme opérationnel</th>
+                                    <th>Équivalent AWS</th>
+                                    <th>Équivalent GCP</th>
+                                    <th>Comportement architectural clé</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><b>Conteneurs Web Serverless Autonomes</b></td>
+                                    <td><b>AWS App Runner</b></td>
+                                    <td><b>Google Cloud Run</b></td>
+                                    <td>PaaS web entièrement managé : déploiement direct (image/code), URL HTTPS/TLS, scale-to-zero. Aucun orchestrateur requis.</td>
+                                </tr>
+                                <tr>
+                                    <td><b>Kubernetes Serverless (Nœuds masqués)</b></td>
+                                    <td><b>Amazon EKS on Fargate</b></td>
+                                    <td><b>GKE Autopilot</b></td>
+                                    <td>APIs Kubernetes standard, mais l'infrastructure sous-jacente des nœuds est masquée et provisionnée par pod.</td>
+                                </tr>
+                                <tr>
+                                    <td><b>Orchestration Serverless Propriétaire</b></td>
+                                    <td><b>Amazon ECS on Fargate</b></td>
+                                    <td><i>Aucun équivalent direct</i></td>
+                                    <td>Orchestrateur natif AWS pilotant des tâches sur compute serverless managé sans gestion de serveurs.</td>
+                                </tr>
+                                <tr>
+                                    <td><b>Kubernetes classique sur VMs visibles</b></td>
+                                    <td><b>Amazon EKS on EC2</b></td>
+                                    <td><b>GKE Standard</b></td>
+                                    <td>Clusters Kubernetes traditionnels s'exécutant sur des machines virtuelles clientes (EC2 / Compute Engine).</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> Piège Examen Conteneurs :</b> Fargate = moteur de calcul serverless (« muscle », pas d'orchestration autonome directe) ; App Runner = PaaS web 1-clic sans orchestrateur (Cloud Run) ; ECS = simplicité native AWS, sidecars &amp; workers non-HTTP ; EKS = standard Kubernetes &amp; portabilité ; Karpenter = autoscaling dynamique de nœuds EKS sans ASG.</div>
                     </article>
 
                     <article class="card deployment searchable">
@@ -1533,6 +1578,16 @@
                                 <td>Sauvegarde immuable conforme contre les ransomwares / suppression</td>
                                 <td><b>AWS Backup avec Vault Lock</b></td>
                                 <td>Empêche la suppression même par le compte root en mode Compliance.</td>
+                            </tr>
+                            <tr>
+                                <td>API Web conteneurisée sans gestion de cluster ni d'orchestrateur (scale-to-zero)</td>
+                                <td><b>AWS App Runner</b></td>
+                                <td>PaaS conteneur web 1-clic tout-en-un (équivalent Cloud Run) ; évite la surcharge d'ECS/EKS.</td>
+                            </tr>
+                            <tr>
+                                <td>Microservices avec sidecars (logging/proxy) ou workers asynchrones SQS en conteneurs serverless</td>
+                                <td><b>Amazon ECS sur Fargate</b></td>
+                                <td>Supporte le multi-conteneur par tâche, les charges non-HTTP et le réseau privé <code>awsvpc</code> avec ENI dédiée.</td>
                             </tr>
                         </tbody>
                     </table>
@@ -1950,9 +2005,7 @@
                         <div class="item"><span class="tag">SNS</span> fan-out vers plusieurs consommateurs ; combiner
                             SNS→SQS pour isoler les vitesses de traitement. <span class="tag">Step Functions</span> gère
                             workflow et compensation (Saga). Standard vs Express.</div>
-                        <div class="item"><span class="tag">ECS/EKS/Fargate</span> choisir ECS pour simplicité AWS, EKS
-                            pour exigences Kubernetes/portabilité ; Fargate réduit les opérations mais n’est pas
-                            toujours le meilleur coût pour capacité stable.</div>
+                        <div class="item"><span class="tag">Conteneurs &amp; Modernisation</span> <b>App Runner</b> pour APIs web simples 1-click (équivalent Cloud Run) ; <b>ECS + Fargate</b> pour architectures d'entreprise (sidecars, workers SQS/batch, micro-segmentation <code>awsvpc</code>) ; <b>EKS</b> pour gouvernance Kubernetes/portabilité multi-cloud (équiv. GKE Autopilot/Standard). Utiliser <b>Fargate Spot</b> et Savings Plans pour charges continues.</div>
                         <div class="architecture"><strong>Pattern de migration :</strong> API facade → strangler routing
                             → nouveau service → EventBridge/SQS → réplication/CDC → observabilité. Déployer blue/green,
                             canary et feature flags pour limiter le risque.</div>
