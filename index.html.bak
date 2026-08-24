@@ -600,11 +600,9 @@
                             stockage, licences et effort d’exploitation. « Managed/serverless » réduit souvent l’ops,
                             mais pas toujours le coût unitaire.</div>
                         <div class="highlight"><b>Réflexe d’examen :</b> relever le qualificatif principal (« least
-                            operational overhead », « lowest cost / moins cher », « near-zero RTO », « sans
-                            opérations », « HA », « latence »), extraire les contraintes absolues (RTO,
-                            protocole, chiffrement, ordre, cohérence), éliminer les réponses qui violent une
-                            propriété native AWS ou les distracteurs invalides, puis choisir le service managé
-                            qui satisfait exactement le besoin.</div>
+                            operational overhead », « lowest cost », « near-zero RTO »), les contraintes absolues (RTO,
+                            protocole, chiffrement, ordre, cohérence), puis éliminer les réponses qui violent une
+                            propriété native AWS.</div>
                     </article>
 
                     <article class="card security searchable">
@@ -656,10 +654,9 @@
                         <div class="item"><span class="tag">Condition Keys</span> <code>aws:PrincipalOrgID</code>
                             (restreindre à l'OU/Org), <code>aws:sourceVpce</code> (forcer passage par Interface
                             Endpoint), <code>aws:RequestedRegion</code>.</div>
-                        <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> Piège IAM :</b> l’autorisation
-                            effective est l’<b>intersection</b> de toutes les couches applicables : identity policy ∩
-                            resource policy ∩ SCP ∩ permission boundary ∩ session/key policy ; chaque couche doit
-                            autoriser l’action demandée pour qu’elle soit permise.</div>
+                        <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> Piège IAM :</b> une SCP, une
+                            permission boundary ou une key policy n’accorde pas automatiquement un droit. L’autorisation
+                            effective est l’intersection des couches applicables, avec priorité à l’explicit deny.</div>
                     </article>
 
                     <article class="card security searchable">
@@ -1469,7 +1466,7 @@
                     </article>
 
                     <article class="card finops searchable">
-                        <h2><i class="fas fa-coins"></i> FinOps : optimisation des coûts</h2>
+                        <h2><i class="fas fa-coins"></i> FinOps &amp; Well-Architected</h2>
                         <div class="item"><span class="tag">Cost Explorer/Budgets</span> analyser, prévoir et alerter ;
                             un budget alerte mais ne bloque pas automatiquement l’utilisation.</div>
                         <div class="item"><span class="tag">Tags</span> Cost Allocation Tags et comptes séparés rendent
@@ -1481,6 +1478,9 @@
                         <div class="item"><span class="tag">Storage/network</span> Lifecycle S3, Intelligent-Tiering,
                             compression, CloudFront, VPC endpoints S3/DynamoDB et réduction des transferts
                             cross-AZ/cross-Region.</div>
+                        <div class="highlight"><b>Méthode SAA :</b> identifier le qualificatif (« moins cher », « sans
+                            opérations », « HA », « latence »), extraire contraintes, éliminer les distracteurs
+                            invalides, choisir le service managé qui satisfait exactement le besoin.</div>
                     </article>
                 </div>
 
@@ -1579,6 +1579,16 @@
                                 <td><b>AWS Backup avec Vault Lock</b></td>
                                 <td>Empêche la suppression même par le compte root en mode Compliance.</td>
                             </tr>
+                            <tr>
+                                <td>API Web conteneurisée sans gestion de cluster ni d'orchestrateur (scale-to-zero)</td>
+                                <td><b>AWS App Runner</b></td>
+                                <td>PaaS conteneur web 1-clic tout-en-un (équivalent Cloud Run) ; évite la surcharge d'ECS/EKS.</td>
+                            </tr>
+                            <tr>
+                                <td>Microservices avec sidecars (logging/proxy) ou workers asynchrones SQS en conteneurs serverless</td>
+                                <td><b>Amazon ECS sur Fargate</b></td>
+                                <td>Supporte le multi-conteneur par tâche, les charges non-HTTP et le réseau privé <code>awsvpc</code> avec ENI dédiée.</td>
+                            </tr>
                         </tbody>
                     </table>
                 </section>
@@ -1615,86 +1625,89 @@
                         <div class="item"><span class="tag">Migration — 20%</span> choisir le bon 7R, réduire le
                             downtime, traiter les dépendances et automatiser cutover, validation et rollback.</div>
                         <div class="highlight"><b>Réflexe SAP :</b> plusieurs réponses peuvent être techniquement
-                            possibles. Retenir celle qui respecte toutes les contraintes, minimise l’effort opérationnel,
-                            limite le domaine d’impact d’une erreur (plus petit blast radius) et rend la sécurité
-                            explicite.</div>
+                            possibles. Retenir celle qui respecte toutes les contraintes, minimise l’effort opérationnel
+                            et limite le domaine d’impact d’une erreur.</div>
                     </article>
 
                     <article class="card governance searchable">
-                        <h2><i class="fas fa-sitemap"></i> Landing zone, multi-comptes &amp; automatisation</h2>
-                        <div class="item"><span class="tag">Organizations</span> Root → OUs → comptes : management,
-                            log archive, security tooling, network/shared services, workloads dev/test/prod pour réduire
-                            le blast radius et clarifier la facturation. Le <b>management account</b> reste minimal :
-                            activer MFA, protéger l'accès root, ne jamais y héberger de workload.</div>
+                        <h2><i class="fas fa-sitemap"></i> Landing zone &amp; multi-comptes</h2>
+                        <div class="item"><span class="tag">Organizations</span> Root → OUs → comptes. Séparer
+                            management, log archive, security tooling, network/shared services, workloads dev/test/prod
+                            pour réduire le blast radius et clarifier la facturation.</div>
                         <div class="item"><span class="tag">Control Tower</span> Automatise la landing zone, Account
-                            Factory et guardrails. Guardrails <b>preventive</b> = SCP (empêchent l'action) ;
-                            <b>detective</b> = AWS Config (constatent la dérive mais ne bloquent pas la création
-                            initiale) ; <b>proactive</b> = CloudFormation Hooks. Une SCP bloque mais n’accorde jamais un
-                            droit IAM.</div>
+                            Factory et guardrails. Preventive guardrails = SCP ; detective guardrails = AWS Config ;
+                            proactive = CloudFormation Hooks. Une SCP bloque mais n’accorde jamais un droit IAM.</div>
                         <div class="item"><span class="tag">IAM Identity Center</span> SSO centralisé vers les comptes
-                            et permission sets. Pour machine-to-machine, STS AssumeRole et credentials temporaires,
-                            jamais une access key partagée.</div>
-                        <div class="item"><span class="tag">Audit central</span> Organization CloudTrail vers le compte
-                            Log Archive : bucket S3 à policy restrictive, Object Lock, versioning et écriture réservée
-                            aux services, séparation des rôles. Config Aggregator consolide la conformité ;
-                            delegated administrators (GuardDuty, Security Hub, Inspector, Macie, IAM Access Analyzer)
-                            centralisent les findings et automatisent leur traitement.</div>
-                        <div class="item"><span class="tag">Network / Shared Services</span> TGW, DNS Resolver,
-                            endpoints, inspection, Active Directory, CI/CD et services partagés dans des comptes
-                            dédiés.</div>
-                        <div class="item"><span class="tag">Automatisation</span> <b>StackSets</b> déploie les templates
-                            sur chaque nouveau compte d'une OU ; <b>Service Catalog</b> fournit des portfolios avec
-                            <b>Launch Constraints</b> (délégation de droits IAM de déploiement) ; <b>License Manager</b>
-                            applique les quotas de licences (vCPU/cores). Politiques d'Organisation : Tag Policies
-                            (standardisation des clés/valeurs), Backup Policies (sauvegardes obligatoires), AI Opt-Out.</div>
+                            et permission sets. Pour machine-to-machine, utiliser STS AssumeRole et des credentials
+                            temporaires, jamais une access key partagée.</div>
+                        <div class="item"><span class="tag">Audit central</span> Organization CloudTrail vers un compte
+                            log archive S3 avec bucket policy restrictive, Object Lock et séparation des rôles. Config
+                            Aggregator consolide la conformité ; GuardDuty admin agrège les findings.</div>
                         <div class="item"><span class="tag">FinOps</span> AWS Budgets, Cost Categories/Allocation Tags
                             et Billing Conductor pour visibilité et showback/chargeback entre business units.</div>
                         <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> SAP Gotcha :</b> ne pas
                             placer toutes les workloads dans un compte unique « pour simplifier ». Le multi-compte isole
-                            permissions, quotas, logs, facturation et pannes ; une SCP mal appliquée peut toutefois
+                            les permissions, quotas, logs, facturation et pannes ; une SCP mal appliquée peut toutefois
                             casser les opérations d’un OU entier. Les SCPs ne s'appliquent jamais au Management Account.
                         </div>
                     </article>
 
-                    <article class="card network searchable">
-                        <h2><i class="fas fa-diagram-project"></i> Réseau entreprise : TGW, DX &amp; Cloud WAN</h2>
-                        <div class="item"><span class="tag">TGW routage</span> hub régional pour VPC attachments, VPN et
-                            Direct Connect. Séparer associations et propagations dans plusieurs route tables
-                            (prod/shared/inspection) : prod peut atteindre shared-services sans exposer dev ;
-                            documenter routes effectives et blackholes.</div>
-                        <div class="item"><span class="tag">Central egress</span> private subnets → TGW → egress VPC →
-                            NAT Gateway/Network Firewall → IGW. Déployer NAT et endpoints dans plusieurs AZ et
-                            contrôler le chemin retour.</div>
-                        <div class="item"><span class="tag">Inspection</span> inspection VPC via GWLB ou AWS Network
-                            Firewall (filtrage east-west/north-south) ; appliance VPC/GWLB → retour symétrique
-                            obligatoire pour une appliance stateful : activer <b>TGW Appliance Mode</b> sur
-                            l'attachement.</div>
-                        <div class="item"><span class="tag">RAM</span> partager TGW, subnets ou autres ressources avec
-                            des comptes/OU sans créer de peering full mesh ; le partage ne contourne ni IAM ni routes.
+                    <article class="card governance searchable">
+                        <h2><i class="fas fa-building-columns"></i> Landing zone : composants clés &amp; automatisation
+                        </h2>
+                        <div class="item"><span class="tag">Management account</span> conserver le minimum d’actions,
+                            activer MFA, ne pas y héberger de workload et protéger l’accès root.</div>
+                        <div class="item"><span class="tag">Log Archive</span> S3 central pour CloudTrail, Config et
+                            logs réseau ; bucket policy restrictive, Object Lock, versioning et accès d’écriture
+                            uniquement pour les services.</div>
+                        <div class="item"><span class="tag">Security Tooling</span> delegated administrators pour
+                            GuardDuty, Security Hub, Inspector, Macie et IAM Access Analyzer ; centraliser findings et
+                            automatiser leur traitement.</div>
+                        <div class="item"><span class="tag">Network / Shared Services</span> TGW, DNS Resolver,
+                            endpoints, inspection, Active Directory, CI/CD et services partagés dans des comptes dédiés.
                         </div>
-                        <div class="item"><span class="tag">DX Gateway</span> relie des Direct Connect locations aux VPC
+                        <div class="item"><span class="tag">StackSets / Service Catalog</span> <b>StackSets</b> déploie
+                            automatiquement des templates d'infrastructure sur toute nouvelle création de compte dans
+                            une OU ; <b>Service Catalog</b> fournit des portfolios avec <b>Launch Constraints</b>
+                            (délégation de droits IAM de déploiement). <b>License Manager</b> applique des quotas de
+                            licences (vCPU/cores).</div>
+                        <div class="item"><span class="tag">Politiques d'Organisation</span> <b>Tag Policies</b>
+                            (standardisation des clés/valeurs), <b>Backup Policies</b> (sauvegardes obligatoires), <b>AI
+                                Opt-Out</b>.</div>
+                        <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> SAP Gotcha :</b> un guardrail
+                            préventif empêche l’action via SCP ; un guardrail détectif constate une dérive via Config.
+                            Un contrôle détectif ne bloque pas la création initiale.</div>
+                    </article>
+
+                    <article class="card network searchable">
+                        <h2><i class="fas fa-diagram-project"></i> Transit Gateway, DX &amp; Cloud WAN</h2>
+                        <div class="item"><span class="tag">TGW</span> Hub régional pour VPC attachments, VPN et Direct
+                            Connect. Utiliser plusieurs route tables TGW (prod/shared/inspection) pour segmentation ;
+                            propagation et associations sont distinctes.</div>
+                        <div class="item"><span class="tag">RAM</span> partager TGW, subnets ou autres ressources avec
+                            des comptes/OU sans créer de peering full mesh. Le partage ne contourne ni IAM ni routes.
+                        </div>
+                        <div class="item"><span class="tag">DX Gateway</span> relie des Direct Connect locations à VPC
                             via transit/private VIF ; annoncer uniquement les préfixes nécessaires et respecter les
                             limites BGP (100 routes max).</div>
-                        <div class="item"><span class="tag">DX résilience &amp; chiffrement</span> <b>Maximum
+                        <div class="item"><span class="tag">Direct Connect Resiliency &amp; LAG</span> <b>Maximum
                                 Resiliency</b> (2 liaisons sur 2 sites DX distincts) vs High Resiliency (2 liaisons sur
-                            1 site) ; <b>LAG</b> agrège jusqu'à 4 liaisons physiques actives/actives (LACP) ;
-                            <b>SiteLink</b> connecte les sites on-prem via le réseau dorsal AWS. DX est privé mais
-                            <b>pas chiffré par défaut</b> : <b>MACsec</b> au débit nominal 10G/100G ou <b>VPN IPsec sur
-                                DX</b> (public VIF + VPN public, ou transit VIF + VPN à IP privée selon le design).</div>
-                        <div class="item"><span class="tag">BGP Communities</span> communautés BGP AWS
+                            1 site) ; <b>LAG</b> agrège jusqu'à 4 liaisons physiques actives/actives (LACP).
+                            <b>SiteLink</b> connecte les sites on-prem via le réseau dorsal AWS.
+                        </div>
+                        <div class="item"><span class="tag">BGP Communities &amp; Chiffrement</span> Communautés BGP AWS
                             (<code>7224:7100</code> Low, <code>7224:7200</code> Med, <code>7224:7300</code> High) et
-                            AS-Path Prepending pour influencer le chemin retour.</div>
-                        <div class="item"><span class="tag">DX + VPN</span> Direct Connect fournit le chemin primaire,
-                            VPN Site-to-Site redondant le backup ; deux tunnels terminés sur deux AZ/points de
-                            terminaison différents évitent un SPOF.</div>
-                        <div class="item"><span class="tag">Cloud WAN</span> politique réseau globale déclarative par
-                            segments (Core Network Policy) : privilégier pour un WAN mondial ; TGW reste le choix
-                            régional classique pour connecter VPC, VPN et DX.</div>
+                            AS-Path Prepending pour influencer le retour. Pour le chiffrement DX : <b>MACsec</b> (au
+                            débit nominal 10G/100G) ou <b>VPN IPsec sur DX</b>.</div>
+                        <div class="item"><span class="tag">Inspection VPC</span> TGW route table → appliance VPC/GWLB →
+                            retour symétrique avec <b>TGW Appliance Mode</b>. <span class="tag">Cloud WAN</span> gère un
+                            réseau global par segments déclaratifs (Core Network Policy).</div>
                         <div class="architecture"><strong>Pattern :</strong> on-prem → DX/VPN → DXGW/TGW → inspection
-                            segment (GWLB) → workload VPC.</div>
-                        <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> SAP Gotcha :</b> une route
-                            annoncée dans TGW ne garantit pas le chemin retour. Vérifier les tables de routes VPC, TGW,
-                            appliance, DX/VPN et les filtres BGP dans les deux directions.</div>
+                            segment (GWLB) → workload VPC. VPN fournit le backup de DX ; deux tunnels terminés sur des
+                            AZ différentes apportent la résilience.</div>
+                        <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> SAP Gotcha :</b> DX est privé
+                            mais pas chiffré par défaut. Pour IPsec sur DX, combiner une public VIF + VPN public, ou une
+                            transit VIF + VPN à IP privée selon le design.</div>
                     </article>
 
                     <article class="card network searchable">
@@ -1717,6 +1730,28 @@
                         <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> SAP Gotcha :</b> PrivateLink
                             n’est pas un transit VPC généraliste et ne fournit pas une résolution DNS « magique ».
                             Publier le nom privé, configurer endpoint DNS et autoriser le SG/NLB.</div>
+                    </article>
+
+                    <article class="card network searchable">
+                        <h2><i class="fas fa-shuffle"></i> Réseau entreprise : routage &amp; inspection</h2>
+                        <div class="item"><span class="tag">TGW route tables</span> séparer les associations et
+                            propagations : prod peut atteindre shared-services, mais pas nécessairement dev ; documenter
+                            les routes effectives et les blackholes.</div>
+                        <div class="item"><span class="tag">Central egress</span> private subnets → TGW → egress VPC →
+                            NAT Gateway/Network Firewall → IGW. Déployer NAT et endpoints dans plusieurs AZ et contrôler
+                            le retour.</div>
+                        <div class="item"><span class="tag">Inspection</span> GWLB ou AWS Network Firewall pour filtrage
+                            east-west/north-south. La symétrie de routage est indispensable pour une appliance stateful
+                            (activer <b>Appliance Mode</b> sur l'attachement TGW).</div>
+                        <div class="item"><span class="tag">DX + VPN</span> Direct Connect fournit le chemin primaire ;
+                            VPN Site-to-Site redondant fournit le backup. Deux tunnels et deux points de terminaison
+                            évitent un SPOF.</div>
+                        <div class="item"><span class="tag">Cloud WAN</span> privilégier pour une politique réseau
+                            globale par segments ; TGW reste le choix régional classique pour connecter VPC, VPN et DX.
+                        </div>
+                        <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> SAP Gotcha :</b> une route
+                            annoncée dans TGW ne garantit pas le chemin retour. Vérifier les tables de routes VPC, TGW,
+                            appliance, DX/VPN et les filtres BGP dans les deux directions.</div>
                     </article>
 
                     <article class="card security searchable">
@@ -1779,7 +1814,8 @@
                             </tbody>
                         </table>
                         <div class="item"><span class="tag">Resilience</span> Multi-AZ traite une panne AZ ;
-                            multi-Region traite une panne régionale ; tester régulièrement le failover complet.</div>
+                            multi-Region traite une panne régionale. Tester failover, quotas, certificats, secrets,
+                            dépendances tierces et retour arrière.</div>
                         <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> SAP Gotcha :</b> « presque
                             zéro RTO/RPO » ne signifie pas automatiquement active/active : si les objectifs sont moins
                             stricts, Pilot Light/Warm Standby est la réponse économique et opérationnelle supérieure.
@@ -1995,6 +2031,9 @@
                         <div class="item"><span class="tag">Operations</span> IaC CloudFormation/CDK/Terraform,
                             pipelines CI/CD, immutable AMI, Systems Manager Patch Manager/Automation et runbooks testés
                             plutôt que scripts manuels.</div>
+                        <div class="highlight"><b>Posture SAP :</b> plusieurs réponses peuvent fonctionner ; choisir
+                            celle qui satisfait toutes les contraintes avec le moins d’effort opérationnel, le plus
+                            petit blast radius et une sécurité explicite.</div>
                     </article>
 
                     <article class="card analytics searchable">
