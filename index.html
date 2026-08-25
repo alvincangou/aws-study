@@ -627,6 +627,11 @@
                         <div class="item"><span class="tag">GuardDuty</span> Détection managée de menaces via
                             CloudTrail, VPC Flow Logs et DNS ; <b>Inspector</b> recherche les vulnérabilités
                             EC2/ECR/Lambda ; <b>Security Hub</b> agrège les findings.</div>
+                        <div class="item"><span class="tag">AWS Config</span> évalue la conformité des ressources via des
+                            règles (Config Rules), suit l’historique de configuration et détecte la <b>dérive</b> ;
+                            peut corriger automatiquement (remediation) et agréger plusieurs comptes/régions dans un
+                            <b>Aggregator</b>. « Détecter une ressource ”non-compliant“ / suivre les changements de
+                            configuration » → AWS Config.</div>
                         <div class="item"><span class="tag">ABAC vs RBAC</span> ABAC (Attribute-Based Access Control)
                             utilise des tags dynamiques
                             (<code>aws:PrincipalTag/department == aws:ResourceTag/department</code>) pour autoriser sans
@@ -716,6 +721,11 @@
                         <div class="item"><span class="tag">AWS WAF</span> règles L7 contre SQLi/XSS, rate-based rules
                             et managed rule groups sur CloudFront, ALB ou API Gateway. <span class="tag">Shield</span>
                             protège contre DDoS ; Shield Advanced ajoute visibilité et protections avancées.</div>
+                        <div class="item"><span class="tag">Firewall Manager</span> centralise et applique
+                            <b>automatiquement</b> des policies de sécurité (AWS WAF, Shield Advanced, Security Groups,
+                            Network Firewall) sur <b>tout un Organizations</b> : les déploie sur les nouveaux comptes et
+                            détecte les ressources non conformes. À distinguer : <b>Config</b> constate la dérive,
+                            <b>Firewall Manager</b> l’applique à l’échelle de l’organisation.</div>
                         <div class="item"><span class="tag">Network Firewall</span> inspection stateful/stateless au
                             niveau VPC, souvent centralisée dans une inspection VPC via TGW. Prévoir routes aller/retour
                             et symétrie.</div>
@@ -795,10 +805,15 @@
                         <div class="item"><span class="tag">Endpoints</span> Gateway Endpoint pour S3/DynamoDB (route
                             table, pas de coût horaire) ; Interface Endpoint/PrivateLink pour la plupart des APIs, ENI
                             privés et coût par AZ/données.</div>
-                        <div class="item"><span class="tag">NAT Gateway</span> Sortie Internet depuis privé, déployer
-                            par AZ pour résilience. Internet Gateway sert au public ; NAT Gateway n’autorise pas les
-                            connexions entrantes. <span class="tag">Egress-Only IGW</span> assure la sortie IPv6
-                            uniquement (gratuit, stateful).</div>
+                        <div class="item"><span class="tag">NAT Gateway</span> Sortie Internet depuis une zone
+                        privée, déployer par AZ pour résilience. Internet Gateway sert au public ; NAT Gateway
+                        n’autorise pas les connexions entrantes. <span class="tag">Egress-Only IGW</span> assure la
+                        sortie IPv6 uniquement (gratuit, stateful).</div>
+                        <div class="item"><span class="tag">NAT instance</span> alternative ancestrale : une EC2 (souvent
+                            AMI NAT et à occuper d'un script), <b>moins chère</b> mais non gérée — SPOF sans ASG/multi-AZ,
+                            points de panne, <b>désactiver la source/destination check</b> et configurer le
+                            forwarding IP. Le tester en distractor : dès qu'une réponse mentionne NAT Gateway managé,
+                            la préférer à une NAT instance manuelle.</div>
                         <div class="item"><span class="tag">Peering / TGW</span> Peering est direct, privé et non
                             transitif ; Transit Gateway devient le routeur régional hub-and-spoke pour de nombreux VPC
                             et VPN.</div>
@@ -879,11 +894,18 @@
                             volumineux, presigned URL pour accès temporaire, Transfer Acceleration pour longue distance,
                             CloudFront pour cache global. S3 fournit une forte cohérence read-after-write sur les
                             opérations d’objets ; gérer tout de même retries, erreurs et conflits de réplication.</div>
+                        <div class="item"><span class="tag">S3 Object Lambda (Access Points)</span> transformer l’objet à
+                            la volée (redimensionnement d’images, masquage de données, conversion de format) via une
+                            fonction Lambda attachée à un <b>S3 Object Lambda Access Point</b>, sans copier les données.
+                            <span class="tag">S3 Select</span> exécute une requête SQL simple sur un objet CSV/JSON/Parquet
+                            pour ne récupérer que les lignes/colonnes utiles et <b>réduire les transferts et les coûts</b>.
+                        </div>
                         <div class="item"><span class="tag">EBS</span> Bloc attaché à une AZ : gp3 (SSD général,
                             IOPS/throughput séparables), io2 Block Express (IOPS et durabilité critiques), st1
                             (throughput séquentiel), sc1 (cold). Snapshots incrémentaux S3, chiffrables KMS.</div>
                         <div class="item"><span class="tag">EFS</span> NFS élastique partagé, multi-AZ et adapté à
-                            plusieurs EC2/Lambda ; EFS IA réduit le coût des fichiers peu consultés.</div>
+                            plusieurs EC2/Lambda ; <b>EFS IA / EFS Archive</b> (lifecycle policies) réduisent le coût des
+                            fichiers peu consultés.</div>
                         <div class="item"><span class="tag">FSx</span> Windows File Server pour SMB/AD, Lustre pour
                             HPC/ML et throughput élevé, NetApp ONTAP pour fonctions enterprise, OpenZFS pour workloads
                             ZFS.</div>
@@ -951,6 +973,18 @@
                         <div class="item"><span class="tag">EC2</span> Choisir une famille selon CPU, mémoire, réseau,
                             stockage local ou accélérateur. User data automatise le bootstrap ; AMI et Launch Template
                             rendent le déploiement reproductible.</div>
+                        <div class="item"><span class="tag">Hibernation</span> <b>Hibernate</b> met en pause l’état
+                            mémoire (RAM) dans le volume EBS root et <b>réserve la vitesse de démarrage</b> (seconde)
+                            au lieu d’un reboot complet : utile pour ne pas perdre l’état en mémoire hors-service.
+                            Contraintes : instance supportée, <b>disableApiStop</b>, pas de instance store, max 60 jours
+                            hiberné. <span class="tag">Capacity on-demand / Reservations</span> <b>On-Demand Capacity
+                                Reservation</b> réserve de la capacité d’instance ; <b>Capacity Blocks</b> réserve la
+                            capacité pour des jobs courts (ML). Noter qu'une <b>capacity reservation ne donne pas de remise</b> : les
+                            Savings Plans / RI restent nécessaires pour l'optimisation de coût.</div>
+                        <div class="item"><span class="tag">Snapshots</span> <b>Fast Snapshot Restore (FSR)</b> rend un
+                            snapshot EBS immédiatement initialisable dans une AZ (pas d’effet de premier accès) ;
+                            <b>Snapshot Archive</b> déplace un snapshot vers un stockage froid moins cher (retrait 24–72 h)
+                            ; <b>Recycle Bin</b> / DLM pour la rétention des snapshots.</div>
                         <div class="item"><span class="tag">On-Demand</span> Flexibilité sans engagement ; <span
                                 class="tag">Reserved/Savings Plans</span> remise contre engagement ; <span
                                 class="tag">Spot</span> capacité interruptible avec risque de récupération : batch,
@@ -1233,6 +1267,11 @@
                                 </tr>
                             </tbody>
                         </table>
+                        <div class="item"><span class="tag">Beanstalk environnements</span> <b>Web Tier</b> (load balancer +
+                            instances, reçoit du trafic HTTP) vs <b>Worker Tier</b> (queue SQS + cron, ne reçoit pas de
+                            trafic direct, traite des jobs) ; un même environnement peut lier un Web et un Worker.
+                            <b>.ebextensions</b> pour la configuration custom. « Déployer une app web managée sans gérer
+                            EC2 ni scaling » → Elastic Beanstalk.</div>
                         <div class="item"><span class="tag">CodeDeploy &amp; AppConfig</span> <b>CodeDeploy</b> gère les déploiements progressifs (Canary ex: <code>Canary10Percent5Minutes</code>, Linear ex: <code>Linear10PercentEvery1Minute</code>, All-at-once) ; <b>AppConfig</b> pilote les feature flags dynamiques avec validation et rollback sur alarme CloudWatch.</div>
                     </article>
 
@@ -1475,12 +1514,75 @@
                         <div class="item"><span class="tag">Tags</span> Cost Allocation Tags et comptes séparés rendent
                             l’imputabilité possible. Enlever ressources orphelines, EBS snapshots anciens, Elastic IP
                             inutilisées et NAT excessifs.</div>
-                        <div class="item"><span class="tag">Compute</span> Savings Plans/Reserved Instances pour charge
-                            stable ; Spot pour interruptible ; Graviton si compatible ; serverless lorsque charge
-                            variable et faible exploitation.</div>
+                        <div class="item"><span class="tag">Compute</span> <b>Savings Plans</b> (Compute plan couvre EC2/Fargate/Lambda ; EC2 Instance plan est verrouillé sur une famille/région) et <b>Reserved Instances</b> Standard/Convertible pour charge stable ; Spot pour interruptible ; Graviton si compatible ; serverless lorsque charge variable et faible exploitation. <b>Cost &amp; Usage Report (CUR)</b> = données détaillées pour analyse fine ; <b>Compute Optimizer</b> recommande le rightsizing via apprentissage automatique.</div>
                         <div class="item"><span class="tag">Storage/network</span> Lifecycle S3, Intelligent-Tiering,
                             compression, CloudFront, VPC endpoints S3/DynamoDB et réduction des transferts
                             cross-AZ/cross-Region.</div>
+                    </article>
+                    <article class="card compute searchable">
+                        <h2><i class="fas fa-robot"></i> Services transverses : IA/ML, Batch &amp; divers</h2>
+                        <div class="item"><span class="tag">AWS Batch</span> exécution managée de jobs par lots sur
+                            ECS/EKS/Fargate avec file d’attente priorisée et retries. « Exécuter des milliers de jobs de
+                            traitement, file managée » → AWS Batch (pas des instances EC2 manuelles).</div>
+                        <div class="item"><span class="tag">RDS Proxy</span> pool de connexions managé devant
+                            RDS/Aurora ; « trop de connexions DB ouvertes par des fonctions Lambda / épuisement des
+                            connexions » → RDS Proxy (réduit l’ouverture de connexions et accélère le failover).</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Service IA/ML</th>
+                                    <th>Mot-clé déclencheur → cas d’usage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><b>Rekognition</b></td>
+                                    <td>Analyse images/vidéos : objets, visages, modération de contenu, recherche par
+                                        image.</td>
+                                </tr>
+                                <tr>
+                                    <td><b>Comprehend</b></td>
+                                    <td>NLP : entités, sentiment, langue, détection de PII.</td>
+                                </tr>
+                                <tr>
+                                    <td><b>Polly</b></td>
+                                    <td>Texte → parole (TTS).</td>
+                                </tr>
+                                <tr>
+                                    <td><b>Transcribe</b></td>
+                                    <td>Parole → texte (STT), sous-titres.</td>
+                                </tr>
+                                <tr>
+                                    <td><b>Translate</b></td>
+                                    <td>Traduction automatique multilingue.</td>
+                                </tr>
+                                <tr>
+                                    <td><b>Textract</b></td>
+                                    <td>Extraction OCR de texte/formulaires/tableaux depuis des documents scannés.</td>
+                                </tr>
+                                <tr>
+                                    <td><b>Lex</b></td>
+                                    <td>Chatbots conversationnels (compréhension du langage naturel).</td>
+                                </tr>
+                                <tr>
+                                    <td><b>Personalize</b></td>
+                                    <td>Recommandations personnalisées en temps réel (catalogue produit).</td>
+                                </tr>
+                                <tr>
+                                    <td><b>SageMaker</b></td>
+                                    <td>ML custom : entraîner et déployer ses propres modèles.</td>
+                                </tr>
+                                <tr>
+                                    <td><b>Bedrock</b></td>
+                                    <td>LLM génératifs managés (IA générative) sans gérer l’infrastructure.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> Piège :</b> les questions IA/ML
+                            relèvent du pur <b>mapping de mots-clés</b> : identifier l’action du service citée (OCR sur
+                            documents → Textract, sentiment → Comprehend, voix → service Polly/Transcribe) élimine les
+                            distracteurs. Pour du « prêt à l’emploi » préférer le service managé dédié à
+                            SageMaker (ML custom).</div>
                     </article>
                 </div>
 
@@ -1705,6 +1807,9 @@
                         <div class="item"><span class="tag">Resolver rules</span> centraliser les règles dans un compte
                             réseau et les partager avec RAM. Attention aux boucles de forwarding, à la résolution
                             conditionnelle et aux security groups des endpoints.</div>
+                        <div class="item"><span class="tag">Route 53 Resolver DNS Firewall</span> filtrer les requêtes
+                            DNS selon le domaine pour <b>bloquer l’exfiltration via DNS</b> et l’accès à des domaines
+                            malveillants, en mode managé/multi-comptes ; s’applique aux endpoints Resolver et aux VPC.</div>
                         <div class="item"><span class="tag">Private Hosted Zone</span> associer à plusieurs VPC (ou
                             architecture centralisée selon le besoin). Une zone publique et privée de même nom ont des
                             réponses différentes selon le point de résolution.</div>
@@ -1737,6 +1842,10 @@
                         <div class="item"><span class="tag">Compliance</span> Config conformance packs, Security Hub
                             standards, Macie pour PII S3, Audit Manager pour preuves et CloudTrail Lake pour analyse des
                             événements sur 7 ans.</div>
+                        <div class="item"><span class="tag">KMS External Key Store (XKS)</span> lorsque la règle métier
+                            exige que le <b>matériel de clé ne quitte jamais</b> un HSM contrôlé par le client :
+                            <b>CloudHSM</b> (HSM dédié) ou <b>External Key Store (XKS)</b> relie KMS à un HSM externe pour
+                            conserver les opérations KMS standards côté AWS.</div>
                         <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> SAP Gotcha :</b> cocher «
                             encryption enabled » ne suffit pas. Vérifier région de la clé, grants, key policy, rôle de
                             réplication, destination cross-account et capacité à restaurer.</div>
@@ -1803,6 +1912,11 @@
                         <div class="item"><span class="tag">Runbook</span> inclure quotas, IAM, secrets, certificats
                             ACM, DNS/TTL, réplication, dépendances tierces, observabilité, validation métier et
                             procédure de retour arrière.</div>
+                        <div class="item"><span class="tag">SSM Incident Manager</span> gère la <b>réponse aux
+                            incidents</b> (paging/personnes de garde via AWS Chatbot / Amazon SNS, chronologie d'incident,
+                            capture des étapes, engagement avec des runbooks SSM Automations pour l'auto-résolution) et
+                            publie un <b>post-incident review</b>. À distinguer de CloudWatch (métriques/alarmes) et
+                            d'AWS Health (événements AWS) : Incident Manager orchestre la réponse humaine.</div>
                         <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> SAP Gotcha :</b> une
                             architecture multi-AZ ne suffit pas si le déploiement, les quotas régionaux, les secrets ou
                             les permissions de restauration restent dans une seule région.</div>
@@ -1879,8 +1993,11 @@
                             TCO et analyse les coûts.
                         </div>
                         <div class="item"><span class="tag">Factory</span> landing zone, comptes, réseau, IAM, logging
-                            et templates IaC prêts avant la première vague. Standardiser AMI, tags, backup, monitoring
-                            et rollback.</div>
+                                et templates IaC prêts avant la première vague. Standardiser AMI, tags, backup,
+                                monitoring et rollback. <span class="tag">Migration Hub</span> centralise le <b>suivi
+                                (tracking) et l'orchestration</b> des migrations (statut des apps, progression) et <b>se
+                                connecte aux outils</b> (MGN, DMS, ADS, Server Migration Service) en un seul emplacement
+                                ; l'<b>Application Migration Service (MGN)</b> réalise la réplication des serveurs.</div>
                         <div class="item"><span class="tag">Data</span> full load → CDC → validation des
                             compteurs/checksums → gel court → cutover → observation. Mesurer lag DMS, erreurs
                             applicatives et capacité cible.</div>
@@ -1995,6 +2112,13 @@
                         <div class="item"><span class="tag">Operations</span> IaC CloudFormation/CDK/Terraform,
                             pipelines CI/CD, immutable AMI, Systems Manager Patch Manager/Automation et runbooks testés
                             plutôt que scripts manuels.</div>
+                        <div class="item"><span class="tag">Compute Optimizer</span> recommande le <b>rightsizing</b>
+                            (type/famille d’instance, droits Graviton) à partir de l’usage réel via apprentissage
+                            automatique, y compris cross-account grâce au delegated admin.</div>
+                        <div class="item"><span class="tag">Personal Health Dashboard / Health API</span> alertes
+                            <b>proactives</b> sur les événements AWS (maintenance planifiée, pannes régionales)
+                            affectant <b>vos</b> ressources, avec vue organisationnelle ; ne pas confondre avec le statut
+                            global (Service Health Dashboard).</div>
                     </article>
 
                     <article class="card analytics searchable">
@@ -2002,6 +2126,10 @@
                         <div class="item"><span class="tag">S3 data lake</span> zones raw/clean/curated, formats colonne
                             Parquet/ORC, partitionnement et lifecycle ; gouverner l’accès par Lake Formation plutôt que
                             par des buckets publics.</div>
+                        <div class="item"><span class="tag">S3 Access Points</span> endpoint <b>nommé par
+                                application</b> avec sa propre policy et réseau (VPC origin) : limiter l’accès par
+                            équipe/workload, partager ou restreindre dans un data lake multi-comptes sans toucher aux
+                            buckets.</div>
                         <div class="item"><span class="tag">Lake Formation</span> sécurité et gouvernance centralisées
                             avec contrôles d'accès granulaires au niveau <b>table, colonne, ligne et cellule</b>.</div>
                         <div class="item"><span class="tag">Glue</span> Data Catalog, crawlers, ETL serverless Spark,
