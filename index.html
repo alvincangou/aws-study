@@ -609,7 +609,7 @@
 
                     <article class="card security searchable">
                         <h2><i class="fas fa-shield-halved"></i> IAM, sécurité &amp; gouvernance</h2>
-                        <div class="item"><span class="tag">IAM</span> <span class="label">Least privilege :</span> une
+                        <div class="item"><span class="tag">IAM (Identity and Access Management)</span> <span class="label">Least privilege :</span> une
                             policy JSON combine <b>Effect, Principal, Action, Resource, Condition</b>. Préférer les
                             rôles temporaires à des clés longues et limiter chaque identité à son besoin réel.</div>
                         <div class="item"><span class="tag">IAM Identity Center</span> Fédération SSO centralisée vers
@@ -618,7 +618,7 @@
                         <div class="item"><span class="tag">Organizations / SCP</span> Une SCP ne donne jamais un droit
                             : elle définit le plafond applicable à un compte/OU. Un <b>explicit deny</b> dans IAM, SCP
                             ou permission boundary gagne toujours.</div>
-                        <div class="item"><span class="tag">KMS</span> Chiffrement d’enveloppe : une data key chiffre
+                        <div class="item"><span class="tag">KMS (Key Management Service)</span> Chiffrement d’enveloppe : une data key chiffre
                             les données, la CMK chiffre la data key. La key policy doit autoriser explicitement les
                             comptes/rôles externes.</div>
                         <div class="item"><span class="tag">CloudTrail</span> Journaliser les appels API
@@ -626,7 +626,7 @@
                             l’historique contre l’altération.</div>
                         <div class="item"><span class="tag">GuardDuty</span> Détection managée de menaces via
                             CloudTrail, VPC Flow Logs et DNS ; <b>Inspector</b> recherche les vulnérabilités
-                            EC2/ECR/Lambda ; <b>Security Hub</b> agrège les findings.</div>
+                            EC2, ECR (Elastic Container Registry) et Lambda ; <b>Security Hub</b> agrège les findings.</div>
                         <div class="item"><span class="tag">AWS Config</span> évalue la conformité des ressources via des
                             règles (Config Rules), suit l’historique de configuration et détecte la <b>dérive</b> ;
                             peut corriger automatiquement (remediation) et agréger plusieurs comptes/régions dans un
@@ -648,9 +648,9 @@
                         <h2><i class="fas fa-user-lock"></i> IAM avancé : les couches d’autorisation</h2>
                         <div class="item"><span class="tag">Identity policy</span> attachée à un user/group/role ;
                             accorde un droit si l’action, la ressource et les conditions correspondent.</div>
-                        <div class="item"><span class="tag">Resource policy</span> attachée à S3, SQS, SNS, KMS ou
+                        <div class="item"><span class="tag">Resource policy</span> attachée à S3, SQS (Simple Queue Service), SNS (Simple Notification Service), KMS (Key Management Service) ou
                             Lambda ; utile pour l’accès cross-account, avec un <code>Principal</code> explicite.</div>
-                        <div class="item"><span class="tag">Permission boundary</span> plafond d’un principal IAM ; elle
+                        <div class="item"><span class="tag">Permission boundary</span> plafond d’un principal IAM (Identity and Access Management) ; elle
                             ne donne aucune autorisation par elle-même. <span class="tag">Session policy</span> réduit
                             encore les permissions d’une session STS.</div>
                         <div class="item"><span class="tag">STS</span> <code>AssumeRole</code> fournit des credentials
@@ -673,10 +673,10 @@
                             sécurisée aux instances EC2 <b>sans ouvrir le port 22 entrant</b>, sans IP publique, sans
                             bastion host et sans clés SSH ; audit complet dans CloudTrail et logs S3/CloudWatch.</div>
                         <div class="item"><span class="tag">Parameter Store</span> hiérarchie clé-valeur (config et
-                            secrets chiffrés KMS). Standard (gratuit, 10 000 paramètres, 4 Ko) vs <b>Advanced</b>
+                            secrets chiffrés KMS (Key Management Service)). Standard (gratuit, 10 000 paramètres, 4 Ko) vs <b>Advanced</b>
                             (payant, 8 Ko, policies de notification/TTL).</div>
                         <div class="item"><span class="tag">Secrets Manager</span> conçu pour les secrets avec
-                            <b>rotation automatique intégrée</b> (RDS, Redshift, DocumentDB) via fonctions Lambda
+                            <b>rotation automatique intégrée</b> (RDS (Relational Database Service), Redshift, DocumentDB) via fonctions Lambda
                             natives et réplication multi-régions pour DR.
                         </div>
                         <div class="item"><span class="tag">Patch Manager</span> automatisation du patching OS via
@@ -687,7 +687,7 @@
                             et application de configurations d’état sans SSH sur des parcs entiers d'instances
                             EC2/on-prem.</div>
                         <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> Prérequis Session Manager
-                                :</b> l'instance EC2 doit exécuter l'agent SSM, posséder le rôle IAM avec
+                                :</b> l'instance EC2 doit exécuter l'agent SSM, posséder le rôle IAM (Identity and Access Management) avec
                             <code>AmazonSSMManagedInstanceCore</code> et joindre les endpoints SSM (via NAT GW/Internet
                             ou VPC Interface Endpoints <code>ssm</code>, <code>ssmmessages</code>,
                             <code>ec2messages</code>).
@@ -703,7 +703,7 @@
                         </div>
                         <div class="item"><span class="tag">Cognito Identity Pools</span> <b>Autorisation (AuthZ)</b> :
                             échange les tokens d’authentification (CUP, Google, SAML, anonyme) contre des <b>credentials
-                                AWS temporaires IAM</b> pour accéder directement à S3, DynamoDB, etc.</div>
+                                AWS temporaires IAM (Identity and Access Management)</b> pour accéder directement à S3, DynamoDB, etc.</div>
                         <div class="item"><span class="tag">Lambda Triggers</span> personnalisation des flux
                             d'authentification (Pre-sign-up, Post-confirmation, Pre-token-generation, Custom auth
                             challenge).</div>
@@ -719,7 +719,7 @@
                     <article class="card security searchable">
                         <h2><i class="fas fa-shield-virus"></i> Sécurité avancée des workloads</h2>
                         <div class="item"><span class="tag">AWS WAF</span> règles L7 contre SQLi/XSS, rate-based rules
-                            et managed rule groups sur CloudFront, ALB ou API Gateway. <span class="tag">Shield</span>
+                            et managed rule groups sur CloudFront, ALB (Application Load Balancer) ou API Gateway. <span class="tag">Shield</span>
                             protège contre DDoS ; Shield Advanced ajoute visibilité et protections avancées.</div>
                         <div class="item"><span class="tag">Firewall Manager</span> centralise et applique
                             <b>automatiquement</b> des policies de sécurité (AWS WAF, Shield Advanced, Security Groups,
@@ -727,7 +727,7 @@
                             détecte les ressources non conformes. À distinguer : <b>Config</b> constate la dérive,
                             <b>Firewall Manager</b> l’applique à l’échelle de l’organisation.</div>
                         <div class="item"><span class="tag">Network Firewall</span> inspection stateful/stateless au
-                            niveau VPC, souvent centralisée dans une inspection VPC via TGW. Prévoir routes aller/retour
+                            niveau VPC, souvent centralisée dans une inspection VPC via Transit Gateway. Prévoir routes aller/retour
                             et symétrie.</div>
                         <div class="item"><span class="tag">Macie</span> découvre et classe les données sensibles/PII
                             dans S3 ; <span class="tag">Detective</span> analyse les relations et la cause d’un finding
@@ -765,10 +765,10 @@
                                     <td><b>Lambda</b></td>
                                     <td>Invocation maximale 15 min ; concurrence, mémoire, taille package et ephemeral
                                         storage limités.</td>
-                                    <td>Utiliser SQS/Step Functions ou ECS/Fargate pour les traitements longs.</td>
+                                    <td>Utiliser SQS (Simple Queue Service)/Step Functions ou ECS (Elastic Container Service)/Fargate pour les traitements longs.</td>
                                 </tr>
                                 <tr>
-                                    <td><b>EBS</b></td>
+                                    <td><b>EBS (Elastic Block Store)</b></td>
                                     <td>gp3 sépare capacité, IOPS et débit ; io2 vise IOPS/durabilité élevées ; volume
                                         attaché à une AZ.</td>
                                     <td>Snapshot, réplication ou architecture applicative pour changer d’AZ.</td>
@@ -783,7 +783,7 @@
                                     <td><b>API/SQS</b></td>
                                     <td>Payloads, timeout, visibilité, rétention et débit varient selon le type
                                         d’API/queue.</td>
-                                    <td>Paginer, découpler, utiliser DLQ et rendre les consumers idempotents.</td>
+                                    <td>Paginer, découpler, utiliser Dead-Letter Queue et rendre les consumers idempotents.</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -799,7 +799,7 @@
                             seulement une IP publique.</div>
                         <div class="item"><span class="tag">Security Group</span> Au niveau ENI, <b>stateful</b>,
                             uniquement Allow : le retour d’une connexion autorisée est accepté automatiquement.</div>
-                        <div class="item"><span class="tag">NACL</span> Au niveau subnet, <b>stateless</b>, Allow et
+                        <div class="item"><span class="tag">Network ACL</span> Au niveau subnet, <b>stateless</b>, Allow et
                             Deny ; règles évaluées par numéro croissant. Autoriser explicitement les ports éphémères de
                             retour (1024–65535).</div>
                         <div class="item"><span class="tag">Endpoints</span> Gateway Endpoint pour S3/DynamoDB (route
@@ -807,24 +807,24 @@
                             privés et coût par AZ/données.</div>
                         <div class="item"><span class="tag">NAT Gateway</span> Sortie Internet depuis une zone
                         privée, déployer par AZ pour résilience. Internet Gateway sert au public ; NAT Gateway
-                        n’autorise pas les connexions entrantes. <span class="tag">Egress-Only IGW</span> assure la
+                        n’autorise pas les connexions entrantes. <span class="tag">Egress-Only Internet Gateway</span> assure la
                         sortie IPv6 uniquement (gratuit, stateful).</div>
                         <div class="item"><span class="tag">NAT instance</span> alternative ancestrale : une EC2 (souvent
                             AMI NAT et à occuper d'un script), <b>moins chère</b> mais non gérée — SPOF sans ASG/multi-AZ,
                             points de panne, <b>désactiver la source/destination check</b> et configurer le
                             forwarding IP. Le tester en distractor : dès qu'une réponse mentionne NAT Gateway managé,
                             la préférer à une NAT instance manuelle.</div>
-                        <div class="item"><span class="tag">Peering / TGW</span> Peering est direct, privé et non
+                        <div class="item"><span class="tag">Peering / Transit Gateway</span> Peering est direct, privé et non
                             transitif ; Transit Gateway devient le routeur régional hub-and-spoke pour de nombreux VPC
                             et VPN.</div>
                         <div class="item"><span class="tag">Direct Connect</span> Liaison dédiée et stable, mais pas
-                            chiffrée par défaut : ajouter VPN/IPsec si le chiffrement est requis. Public VIF pour
-                            services publics, private VIF pour VPC, transit VIF vers DXGW/TGW.</div>
+                            chiffrée par défaut : ajouter VPN/IPsec si le chiffrement est requis. Public Virtual Interface pour
+                            services publics, private Virtual Interface pour VPC, transit Virtual Interface vers Direct Connect Gateway/Transit Gateway.</div>
                         <div class="item"><span class="tag">Hybride &amp; Diagnostic</span> <b>DHCP Option Sets</b>
                             permet de configurer des serveurs DNS custom (AD on-prem) ; <b>Traffic Mirroring</b> clone
                             le trafic ENI vers des appliances IDS hors-bande.</div>
                         <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> Piège Examen :</b> un
-                            Security Group ne peut pas refuser une IP ; utiliser un NACL, AWS WAF ou une policy adaptée.
+                            Security Group ne peut pas refuser une IP ; utiliser un Network ACL, AWS WAF ou une policy adaptée.
                             Un VPC endpoint évite NAT/Internet uniquement pour les services qu’il dessert.</div>
                     </article>
 
@@ -885,7 +885,7 @@
                         <h2><i class="fas fa-hard-drive"></i> S3, EBS &amp; systèmes de fichiers</h2>
                         <div class="item"><span class="tag">S3</span> Objet durable, multi-AZ par conception, clé unique
                             par bucket. Versioning protège des suppressions ; Object Lock/WORM impose rétention et legal
-                            hold ; SSE-S3 par défaut, SSE-KMS pour contrôle/audit de clés.</div>
+                            hold ; SSE-S3 par défaut, SSE-KMS (Key Management Service) pour contrôle/audit de clés.</div>
                         <div class="item"><span class="tag">S3 classes</span> Standard (actif), Intelligent-Tiering
                             (accès imprévisible), Standard-IA/One Zone-IA (moins fréquent), Glacier
                             Instant/Flexible/Deep Archive (archives). Lifecycle automatise transitions et expiration.
@@ -900,10 +900,10 @@
                             <span class="tag">S3 Select</span> exécute une requête SQL simple sur un objet CSV/JSON/Parquet
                             pour ne récupérer que les lignes/colonnes utiles et <b>réduire les transferts et les coûts</b>.
                         </div>
-                        <div class="item"><span class="tag">EBS</span> Bloc attaché à une AZ : gp3 (SSD général,
+                        <div class="item"><span class="tag">EBS (Elastic Block Store)</span> Bloc attaché à une AZ : gp3 (SSD général,
                             IOPS/throughput séparables), io2 Block Express (IOPS et durabilité critiques), st1
                             (throughput séquentiel), sc1 (cold). Snapshots incrémentaux S3, chiffrables KMS.</div>
-                        <div class="item"><span class="tag">EFS</span> NFS élastique partagé, multi-AZ et adapté à
+                        <div class="item"><span class="tag">EFS (Elastic File System)</span> NFS élastique partagé, multi-AZ et adapté à
                             plusieurs EC2/Lambda ; <b>EFS IA / EFS Archive</b> (lifecycle policies) réduisent le coût des
                             fichiers peu consultés.</div>
                         <div class="item"><span class="tag">FSx</span> Windows File Server pour SMB/AD, Lustre pour
@@ -944,7 +944,7 @@
                                     <td><b>Volume Gateway (Stored)</b></td>
                                     <td>iSCSI</td>
                                     <td>Données complètes stockées on-prem ; backups asynchrones vers S3 (snapshots
-                                        EBS).</td>
+                                        EBS (Elastic Block Store)).</td>
                                 </tr>
                                 <tr>
                                     <td><b>Tape Gateway (VTL)</b></td>
@@ -956,7 +956,7 @@
                         </table>
                         <div class="item"><span class="tag">AWS Transfer Family</span> serveurs managés SFTP, FTPS et
                             FTP pour charger/extraire des fichiers directement dans des buckets S3 ou systèmes de
-                            fichiers EFS sans gérer d'infrastructure EC2.</div>
+                            fichiers EFS (Elastic File System) sans gérer d'infrastructure EC2.</div>
                         <div class="item"><span class="tag">S3 Multi-Region Access Points (MRAP)</span> point d'accès
                             global unique pour plusieurs buckets S3 régionaux avec routage automatique vers la région la
                             plus proche et basculement dynamique.</div>
@@ -974,14 +974,14 @@
                             stockage local ou accélérateur. User data automatise le bootstrap ; AMI et Launch Template
                             rendent le déploiement reproductible.</div>
                         <div class="item"><span class="tag">Hibernation</span> <b>Hibernate</b> met en pause l’état
-                            mémoire (RAM) dans le volume EBS root et <b>réserve la vitesse de démarrage</b> (seconde)
+                            mémoire (RAM) dans le volume EBS (Elastic Block Store) root et <b>réserve la vitesse de démarrage</b> (seconde)
                             au lieu d’un reboot complet : utile pour ne pas perdre l’état en mémoire hors-service.
                             Contraintes : instance supportée, <b>disableApiStop</b>, pas de instance store, max 60 jours
                             hiberné. <span class="tag">Capacity on-demand / Reservations</span> <b>On-Demand Capacity
                                 Reservation</b> réserve de la capacité d’instance ; <b>Capacity Blocks</b> réserve la
                             capacité pour des jobs courts (ML). Noter qu'une <b>capacity reservation ne donne pas de remise</b> : les
                             Savings Plans / RI restent nécessaires pour l'optimisation de coût.</div>
-                        <div class="item"><span class="tag">Snapshots</span> <b>Fast Snapshot Restore (FSR)</b> rend un
+                        <div class="item"><span class="tag">Snapshots</span> <b>Fast Snapshot Restore</b> rend un
                             snapshot EBS immédiatement initialisable dans une AZ (pas d’effet de premier accès) ;
                             <b>Snapshot Archive</b> déplace un snapshot vers un stockage froid moins cher (retrait 24–72 h)
                             ; <b>Recycle Bin</b> / DLM pour la rétention des snapshots.</div>
@@ -991,7 +991,7 @@
                             workers et workloads tolérants.</div>
                         <div class="item"><span class="tag">ASG (Auto Scaling Group)</span> un groupe d’instances décrit
                             par un <b>Launch Template</b> avec une capacité <b>min / desired / max</b>, répartie sur
-                            plusieurs AZ pour éliminer le SPOF. Un health check (EC2 ou ELB) déclenche le remplacement
+                            plusieurs AZ pour éliminer le SPOF. Un health check EC2 ou ELB (Elastic Load Balancing) déclenche le remplacement
                             automatique des instances «&nbsp;unhealthy&nbsp;» ; l’ASG s’attache à un ELB qui route le
                             trafic vers les instances passées en service.</div>
                         <table>
@@ -1091,7 +1091,7 @@
                             en compte des nouvelles instances dans les métriques ; <code>cooldown</code> évite les
                             oscillations (simple scaling) ; les <b>termination policies</b> (OldestInstance,
                             NewestInstance, ClosestToNextInstanceHour, AZRebalance) choisissent l’instance retirée en
-                            scale-in. Découpler avec SQS pour absorber les pics.</div>
+                            scale-in. Découpler avec SQS (Simple Queue Service) pour absorber les pics.</div>
                         <div class="highlight"><b>Réflexe :</b> mesurer d’abord le pattern réel (CloudWatch), puis
                             choisir : prévisible → scheduled/predictive ; réactif → target tracking par défaut ; précis
                             par paliers → step ; ponctuel → manuel. Scheduled et predictive complètent, ils ne
@@ -1140,8 +1140,8 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <div class="item"><span class="tag">ELB</span> ALB = L7 HTTP/S, host/path routing, WAF et TLS ;
-                            NLB = L4 TCP/UDP/TLS, très haute performance et IP statique ; GWLB = insertion d’appliances
+                        <div class="item"><span class="tag">ELB (Elastic Load Balancing)</span> ALB (Application Load Balancer) pour le trafic L7 HTTP/S, host/path routing, WAF et TLS ;
+                            NLB (Network Load Balancer) pour le trafic L4 TCP/UDP/TLS, très haute performance et IP statique ; Gateway Load Balancer pour l’insertion d’appliances
                             réseau.</div>
                         <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> Piège Examen :</b> une action
                             scheduled est <b>statique</b> : elle applique une capacité à l’heure T sans constater la
@@ -1154,8 +1154,8 @@
 
                     <article class="card compute searchable">
                         <h2><i class="fas fa-cubes"></i> Conteneurs AWS : ECS, EKS, App Runner &amp; Fargate Deep Dive</h2>
-                        <div class="item"><span class="tag">AWS Fargate</span> <b>Moteur de calcul serverless (« Le Muscle », pas un orchestrateur autonome) :</b> alloue CPU et mémoire à la demande et masque toute l'infrastructure (serveurs, OS, patchs, scaling de VM). <b>Principe fondamental :</b> Fargate n'a aucune API ni console directe pour lancer des conteneurs isolés, aucun routage web natif ni d'autoscaling autonome. C'est le moteur d'exécution (le « muscle ») qui doit impérativement être instruit et piloté par un orchestrateur (le « cerveau ») : <b>Amazon ECS</b> ou <b>Amazon EKS</b>.</div>
-                        <div class="item"><span class="tag">AWS App Runner</span> <b>Conteneurs Web Serverless managés (équivalent Google Cloud Run) :</b> plateforme PaaS tout-en-un entièrement gérée pour applications et APIs web. Déploiement direct en un clic depuis code source ou image ECR, attribution d'URL HTTPS, certificats TLS, équilibrage de charge et <b>scale-to-zero</b> automatiques sans gérer aucun orchestrateur (ni ECS, ni EKS, ni cluster).</div>
+                        <div class="item"><span class="tag">AWS Fargate</span> <b>Moteur de calcul serverless (« Le Muscle », pas un orchestrateur autonome) :</b> alloue CPU et mémoire à la demande et masque toute l'infrastructure (serveurs, OS, patchs, scaling de VM). <b>Principe fondamental :</b> Fargate n'a aucune API ni console directe pour lancer des conteneurs isolés, aucun routage web natif ni d'autoscaling autonome. C'est le moteur d'exécution (le « muscle ») qui doit impérativement être instruit et piloté par un orchestrateur (le « cerveau ») : <b>Amazon ECS (Elastic Container Service)</b> ou <b>Amazon EKS (Elastic Kubernetes Service)</b>.</div>
+                        <div class="item"><span class="tag">AWS App Runner</span> <b>Conteneurs Web Serverless managés (équivalent Google Cloud Run) :</b> plateforme PaaS tout-en-un entièrement gérée pour applications et APIs web. Déploiement direct en un clic depuis code source ou image ECR (Elastic Container Registry), attribution d'URL HTTPS, certificats TLS, équilibrage de charge et <b>scale-to-zero</b> automatiques sans gérer aucun orchestrateur (ni ECS, ni EKS, ni cluster).</div>
                         <div class="item"><span class="tag">Amazon ECS (Compute Options)</span> orchestrateur de conteneurs natif AWS, simple et hautement intégré :
                             <ul>
                                 <li><b>AWS Fargate</b> : conteneurs serverless avec zéro gestion de serveurs sous-jacents.</li>
@@ -1172,11 +1172,11 @@
                                 <li><b>Hybride / Outposts / EKS Anywhere</b> : exécution de pods Kubernetes sur matériel on-premises ou racks <b>AWS Outposts</b>.</li>
                             </ul>
                         </div>
-                        <div class="item"><span class="tag">ECS IAM Roles</span> <b>Task Role</b> = permissions accordées au code applicatif du conteneur (S3, DynamoDB) ; <b>Task Execution Role</b> = permissions accordées à l'agent ECS (pull d'images ECR, envoi des logs CloudWatch, déchiffrement de secrets KMS/SSM).</div>
+                        <div class="item"><span class="tag">ECS IAM (Identity and Access Management) Roles</span> <b>Task Role</b> = permissions accordées au code applicatif du conteneur (S3, DynamoDB) ; <b>Task Execution Role</b> = permissions accordées à l'agent ECS (pull d'images ECR, envoi des logs CloudWatch, déchiffrement de secrets KMS (Key Management Service)/SSM).</div>
                         <div class="item"><span class="tag">ECS Networking</span> mode <code>awsvpc</code> recommandé (chaque tâche reçoit sa propre ENI et Security Group dédié, obligatoire sur Fargate).</div>
                         <div class="item"><span class="tag">Arbitrage : ECS + Fargate vs App Runner (équiv. Cloud Run)</span> Pourquoi basculer d'App Runner vers ECS + Fargate ?
                             <ul>
-                                <li><b>Workloads non-HTTP :</b> App Runner et Cloud Run sont conçus pour les requêtes/réponses web. ECS gère les workers d'arrière-plan, consommateurs de files (SQS, Kafka/MSK), tâches cron planifiées et pipelines batch.</li>
+                                <li><b>Workloads non-HTTP :</b> App Runner et Cloud Run sont conçus pour les requêtes/réponses web. ECS gère les workers d'arrière-plan, consommateurs de files (SQS (Simple Queue Service), Kafka/MSK), tâches cron planifiées et pipelines batch.</li>
                                 <li><b>Multi-conteneurs (Sidecar Pattern) :</b> App Runner isole un conteneur unique. Les tâches ECS permettent la colocalisation de conteneurs partageant <code>localhost</code> (ex. application + proxy Envoy + collecteur de logs/métriques Datadog/OTel).</li>
                                 <li><b>Contrôle réseau fin (<code>awsvpc</code>) :</b> ENI et Security Group dédiés par tâche ECS, permettant une micro-segmentation VPC granulaire, sous-réseaux privés stricts et intégration Service Mesh / PrivateLink.</li>
                                 <li><b>FinOps &amp; Fort Volume (24/7) :</b> Le coût managé d'App Runner peut être élevé en continu ; ECS offre <b>Fargate Spot</b> (jusqu'à -70%), Savings Plans et Capacity Providers mixtes.</li>
@@ -1268,7 +1268,7 @@
                             </tbody>
                         </table>
                         <div class="item"><span class="tag">Beanstalk environnements</span> <b>Web Tier</b> (load balancer +
-                            instances, reçoit du trafic HTTP) vs <b>Worker Tier</b> (queue SQS + cron, ne reçoit pas de
+                            instances, reçoit du trafic HTTP) vs <b>Worker Tier</b> (queue SQS (Simple Queue Service) + cron, ne reçoit pas de
                             trafic direct, traite des jobs) ; un même environnement peut lier un Web et un Worker.
                             <b>.ebextensions</b> pour la configuration custom. « Déployer une app web managée sans gérer
                             EC2 ni scaling » → Elastic Beanstalk.</div>
@@ -1277,7 +1277,7 @@
 
                     <article class="card database searchable">
                         <h2><i class="fas fa-database"></i> Bases de données &amp; caches</h2>
-                        <div class="item"><span class="tag">RDS Multi-AZ</span> haute disponibilité avec réplica standby
+                        <div class="item"><span class="tag">RDS (Relational Database Service) Multi-AZ</span> haute disponibilité avec réplica standby
                             synchrone et failover ; le standby n’est pas une cible de lecture. Read Replicas servent à
                             scaler les lectures et peuvent être promues.</div>
                         <div class="item"><span class="tag">Aurora</span> stockage distribué répliqué sur 3 AZ/6 copies,
@@ -1287,7 +1287,7 @@
                                 Cloning</b> clone en copy-on-write sans surcoût initial.</div>
                         <div class="item"><span class="tag">DynamoDB</span> NoSQL clé-valeur/document, accès par
                             partition key ; GSI/LSI pour patterns de requêtes, on-demand ou provisioned capacity,
-                            <b>DAX</b> pour cache en mémoire microseconde transparent, Global Tables pour multi-région,
+                            <b>DynamoDB Accelerator(DAX)</b> pour cache en mémoire microseconde transparent, Global Tables pour multi-région,
                             <b>TTL</b> pour expiration automatique sans WCU, et <code>TransactWriteItems</code> pour
                             transactions ACID multi-tables.
                         </div>
@@ -1316,7 +1316,7 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td><b>SQS Standard</b></td>
+                                    <td><b>SQS (Simple Queue Service) Standard</b></td>
                                     <td>Queue, at-least-once</td>
                                     <td>Découplage et débit quasi illimité ; idempotence côté consumer.</td>
                                 </tr>
@@ -1328,7 +1328,7 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><b>SNS</b></td>
+                                    <td><b>SNS (Simple Notification Service)</b></td>
                                     <td>Pub/sub fan-out</td>
                                     <td>Publier vers SQS, Lambda, HTTPS ou email ; filtrage de messages par attributs.
                                     </td>
@@ -1353,8 +1353,8 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <div class="highlight"><b>Pattern robuste :</b> producteur → SNS/EventBridge → plusieurs SQS DLQ
-                            → consumers idempotents. Une DLQ facilite l’analyse sans perdre les messages après des
+                        <div class="highlight"><b>Pattern robuste :</b> producteur → SNS/EventBridge → plusieurs SQS Dead-Letter Queue
+                            → consumers idempotents. Une Dead-Letter Queue facilite l’analyse sans perdre les messages après des
                             retries épuisés.</div>
                     </article>
 
@@ -1440,7 +1440,7 @@
                         <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> Piège Examen Kinesis :</b>
                             Firehose bufferise toujours (ce n'est <i>pas</i> du temps réel pur sub-seconde et ce n'est
                             pas consommable en pull par du code custom) ; l'ordre dans Data Streams n'est garanti que
-                            <b>par shard</b> (pas globalement comme SQS FIFO) ; en cas de throttling
+                            <b>par shard</b> (pas globalement comme SQS (Simple Queue Service) FIFO) ; en cas de throttling
                             <code>ProvisionedThroughputExceededException</code>, ajouter des shards ou utiliser une
                             partition key avec une cardinalité plus élevée.
                         </div>
@@ -1512,7 +1512,7 @@
                         <div class="item"><span class="tag">Cost Explorer/Budgets</span> analyser, prévoir et alerter ;
                             un budget alerte mais ne bloque pas automatiquement l’utilisation.</div>
                         <div class="item"><span class="tag">Tags</span> Cost Allocation Tags et comptes séparés rendent
-                            l’imputabilité possible. Enlever ressources orphelines, EBS snapshots anciens, Elastic IP
+                            l’imputabilité possible. Enlever ressources orphelines, EBS (Elastic Block Store) snapshots anciens, Elastic IP
                             inutilisées et NAT excessifs.</div>
                         <div class="item"><span class="tag">Compute</span> <b>Savings Plans</b> (Compute plan couvre EC2/Fargate/Lambda ; EC2 Instance plan est verrouillé sur une famille/région) et <b>Reserved Instances</b> Standard/Convertible pour charge stable ; Spot pour interruptible ; Graviton si compatible ; serverless lorsque charge variable et faible exploitation. <b>Cost &amp; Usage Report (CUR)</b> = données détaillées pour analyse fine ; <b>Compute Optimizer</b> recommande le rightsizing via apprentissage automatique.</div>
                         <div class="item"><span class="tag">Storage/network</span> Lifecycle S3, Intelligent-Tiering,
@@ -1522,9 +1522,9 @@
                     <article class="card compute searchable">
                         <h2><i class="fas fa-robot"></i> Services transverses : IA/ML, Batch &amp; divers</h2>
                         <div class="item"><span class="tag">AWS Batch</span> exécution managée de jobs par lots sur
-                            ECS/EKS/Fargate avec file d’attente priorisée et retries. « Exécuter des milliers de jobs de
+                            ECS (Elastic Container Service)/EKS (Elastic Kubernetes Service)/Fargate avec file d’attente priorisée et retries. « Exécuter des milliers de jobs de
                             traitement, file managée » → AWS Batch (pas des instances EC2 manuelles).</div>
-                        <div class="item"><span class="tag">RDS Proxy</span> pool de connexions managé devant
+                        <div class="item"><span class="tag">RDS (Relational Database Service) Proxy</span> pool de connexions managé devant
                             RDS/Aurora ; « trop de connexions DB ouvertes par des fonctions Lambda / épuisement des
                             connexions » → RDS Proxy (réduit l’ouverture de connexions et accélère le failover).</div>
                         <table>
@@ -1600,8 +1600,8 @@
                         <tbody>
                             <tr>
                                 <td>Système de fichiers POSIX partagé multi-AZ</td>
-                                <td><b>Amazon EFS</b></td>
-                                <td>NFS managé multi-AZ ; EBS est zonal et S3 est objet.</td>
+                                <td><b>Amazon EFS (Elastic File System)</b></td>
+                                <td>NFS managé multi-AZ ; EBS (Elastic Block Store) est zonal et S3 est objet.</td>
                             </tr>
                             <tr>
                                 <td>Code déclenché par événement sans serveur</td>
@@ -1620,18 +1620,18 @@
                             </tr>
                             <tr>
                                 <td>Protection XSS, SQLi et attaques L7</td>
-                                <td><b>AWS WAF sur ALB / CloudFront</b></td>
+                                <td><b>AWS WAF sur ALB (Application Load Balancer) / CloudFront</b></td>
                                 <td>WAF inspecte le payload L7 ; les Security Groups ignorent le contenu HTTP.</td>
                             </tr>
                             <tr>
                                 <td>Hybride privé chiffré multi-VPC</td>
-                                <td><b>Direct Connect + TGW + VPN/IPsec</b></td>
-                                <td>DX seul n’est pas chiffré ; TGW évite le maillage full-mesh.</td>
+                                <td><b>Direct Connect + Transit Gateway + VPN/IPsec</b></td>
+                                <td>Direct Connect seul n’est pas chiffré ; Transit Gateway évite le maillage full-mesh.</td>
                             </tr>
                             <tr>
                                 <td>Buffer de messages et reprise consumer</td>
-                                <td><b>Amazon SQS + DLQ</b></td>
-                                <td>Asynchrone et durable ; SNS seul est push/fan-out éphémère.</td>
+                                <td><b>Amazon SQS (Simple Queue Service) + Dead-Letter Queue</b></td>
+                                <td>Asynchrone et durable ; SNS (Simple Notification Service) seul est push/fan-out éphémère.</td>
                             </tr>
                             <tr>
                                 <td>Archive économique et immuable WORM</td>
@@ -1651,7 +1651,7 @@
                             <tr>
                                 <td>Authentification mobile et accès direct restreint à S3</td>
                                 <td><b>Cognito User Pool + Identity Pool</b></td>
-                                <td>CUP authentifie (JWT) ; Identity Pool échange contre des clés temporaires IAM.</td>
+                                <td>CUP authentifie (JWT) ; Identity Pool échange contre des clés temporaires IAM (Identity and Access Management).</td>
                             </tr>
                             <tr>
                                 <td>Partage NFS hybride on-premises adossé à S3 avec cache local</td>
@@ -1660,7 +1660,7 @@
                             </tr>
                             <tr>
                                 <td>Mise en cache microseconde pour requêtes DynamoDB en lecture intensive</td>
-                                <td><b>Amazon DynamoDB Accelerator (DAX)</b></td>
+                                <td><b>Amazon DynamoDB Accelerator(DAX)</b></td>
                                 <td>Cache transparent en mémoire ; ElastiCache nécessite une refonte du code applicatif.
                                 </td>
                             </tr>
@@ -1732,7 +1732,7 @@
                             Factory et guardrails. Guardrails <b>preventive</b> = SCP (empêchent l'action) ;
                             <b>detective</b> = AWS Config (constatent la dérive mais ne bloquent pas la création
                             initiale) ; <b>proactive</b> = CloudFormation Hooks. Une SCP bloque mais n’accorde jamais un
-                            droit IAM.</div>
+                            droit IAM (Identity and Access Management).</div>
                         <div class="item"><span class="tag">IAM Identity Center</span> SSO centralisé vers les comptes
                             et permission sets. Pour machine-to-machine, STS AssumeRole et credentials temporaires,
                             jamais une access key partagée.</div>
@@ -1741,7 +1741,7 @@
                             aux services, séparation des rôles. Config Aggregator consolide la conformité ;
                             delegated administrators (GuardDuty, Security Hub, Inspector, Macie, IAM Access Analyzer)
                             centralisent les findings et automatisent leur traitement.</div>
-                        <div class="item"><span class="tag">Network / Shared Services</span> TGW, DNS Resolver,
+                        <div class="item"><span class="tag">Network / Shared Services</span> Transit Gateway, DNS Resolver,
                             endpoints, inspection, Active Directory, CI/CD et services partagés dans des comptes
                             dédiés.</div>
                         <div class="item"><span class="tag">Automatisation</span> <b>StackSets</b> déploie les templates
@@ -1759,51 +1759,51 @@
                     </article>
 
                     <article class="card network searchable">
-                        <h2><i class="fas fa-diagram-project"></i> Réseau entreprise : TGW, DX &amp; Cloud WAN</h2>
-                        <div class="item"><span class="tag">TGW routage</span> hub régional pour VPC attachments, VPN et
+                        <h2><i class="fas fa-diagram-project"></i> Réseau entreprise : Transit Gateway, Direct Connect &amp; Cloud WAN</h2>
+                        <div class="item"><span class="tag">Transit Gateway : routage</span> hub régional pour VPC attachments, VPN et
                             Direct Connect. Séparer associations et propagations dans plusieurs route tables
                             (prod/shared/inspection) : prod peut atteindre shared-services sans exposer dev ;
                             documenter routes effectives et blackholes.</div>
-                        <div class="item"><span class="tag">Central egress</span> private subnets → TGW → egress VPC →
-                            NAT Gateway/Network Firewall → IGW. Déployer NAT et endpoints dans plusieurs AZ et
+                        <div class="item"><span class="tag">Central egress</span> private subnets → Transit Gateway → egress VPC →
+                            NAT Gateway/Network Firewall → Internet Gateway. Déployer NAT et endpoints dans plusieurs AZ et
                             contrôler le chemin retour.</div>
-                        <div class="item"><span class="tag">Inspection</span> inspection VPC via GWLB ou AWS Network
-                            Firewall (filtrage east-west/north-south) ; appliance VPC/GWLB → retour symétrique
-                            obligatoire pour une appliance stateful : activer <b>TGW Appliance Mode</b> sur
+                        <div class="item"><span class="tag">Inspection</span> inspection VPC via Gateway Load Balancer ou AWS Network
+                            Firewall (filtrage east-west/north-south) ; appliance VPC/Gateway Load Balancer → retour symétrique
+                            obligatoire pour une appliance stateful : activer <b>Transit Gateway Appliance Mode</b> sur
                             l'attachement.</div>
-                        <div class="item"><span class="tag">RAM</span> partager TGW, subnets ou autres ressources avec
-                            des comptes/OU sans créer de peering full mesh ; le partage ne contourne ni IAM ni routes.
+                        <div class="item"><span class="tag">RAM (Resource Access Manager)</span> partager Transit Gateway, subnets ou autres ressources avec
+                            des comptes/OU sans créer de peering full mesh ; le partage ne contourne ni IAM (Identity and Access Management) ni routes.
                         </div>
-                        <div class="item"><span class="tag">DX Gateway</span> relie des Direct Connect locations aux VPC
-                            via transit/private VIF ; annoncer uniquement les préfixes nécessaires et respecter les
+                        <div class="item"><span class="tag">Direct Connect Gateway</span> relie des Direct Connect locations aux VPC
+                            via transit/private Virtual Interface ; annoncer uniquement les préfixes nécessaires et respecter les
                             limites BGP (100 routes max).</div>
-                        <div class="item"><span class="tag">DX résilience &amp; chiffrement</span> <b>Maximum
-                                Resiliency</b> (2 liaisons sur 2 sites DX distincts) vs High Resiliency (2 liaisons sur
+                        <div class="item"><span class="tag">Direct Connect : résilience &amp; chiffrement</span> <b>Maximum
+                                Resiliency</b> (2 liaisons sur 2 sites Direct Connect distincts) vs High Resiliency (2 liaisons sur
                             1 site) ; <b>LAG</b> agrège jusqu'à 4 liaisons physiques actives/actives (LACP) ;
-                            <b>SiteLink</b> connecte les sites on-prem via le réseau dorsal AWS. DX est privé mais
+                            <b>SiteLink</b> connecte les sites on-prem via le réseau dorsal AWS. Direct Connect est privé mais
                             <b>pas chiffré par défaut</b> : <b>MACsec</b> au débit nominal 10G/100G ou <b>VPN IPsec sur
-                                DX</b> (public VIF + VPN public, ou transit VIF + VPN à IP privée selon le design).</div>
+                                Direct Connect</b> (public Virtual Interface + VPN public, ou transit Virtual Interface + VPN à IP privée selon le design).</div>
                         <div class="item"><span class="tag">BGP Communities</span> communautés BGP AWS
                             (<code>7224:7100</code> Low, <code>7224:7200</code> Med, <code>7224:7300</code> High) et
                             AS-Path Prepending pour influencer le chemin retour.</div>
-                        <div class="item"><span class="tag">DX + VPN</span> Direct Connect fournit le chemin primaire,
+                        <div class="item"><span class="tag">Direct Connect + VPN</span> Direct Connect fournit le chemin primaire,
                             VPN Site-to-Site redondant le backup ; deux tunnels terminés sur deux AZ/points de
                             terminaison différents évitent un SPOF.</div>
                         <div class="item"><span class="tag">Cloud WAN</span> politique réseau globale déclarative par
-                            segments (Core Network Policy) : privilégier pour un WAN mondial ; TGW reste le choix
-                            régional classique pour connecter VPC, VPN et DX.</div>
-                        <div class="architecture"><strong>Pattern :</strong> on-prem → DX/VPN → DXGW/TGW → inspection
-                            segment (GWLB) → workload VPC.</div>
+                            segments (Core Network Policy) : privilégier pour un WAN mondial ; Transit Gateway reste le choix
+                            régional classique pour connecter VPC, VPN et Direct Connect.</div>
+                        <div class="architecture"><strong>Pattern :</strong> on-prem → Direct Connect/VPN → Direct Connect Gateway/Transit Gateway → inspection
+                            segment (Gateway Load Balancer) → workload VPC.</div>
                         <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> SAP Gotcha :</b> une route
-                            annoncée dans TGW ne garantit pas le chemin retour. Vérifier les tables de routes VPC, TGW,
-                            appliance, DX/VPN et les filtres BGP dans les deux directions.</div>
+                            annoncée dans Transit Gateway ne garantit pas le chemin retour. Vérifier les tables de routes VPC, Transit Gateway,
+                            appliance, Direct Connect/VPN et les filtres BGP dans les deux directions.</div>
                     </article>
 
                     <article class="card network searchable">
                         <h2><i class="fas fa-globe-americas"></i> Hybrid DNS &amp; PrivateLink</h2>
                         <div class="item"><span class="tag">Route 53 Resolver inbound</span> permet au DNS on-prem de
                             résoudre les zones privées AWS via endpoints ENI. <span class="tag">Outbound</span> transmet
-                            les requêtes AWS vers les resolvers on-prem avec forwarding rules partagées par RAM.</div>
+                            les requêtes AWS vers les resolvers on-prem avec forwarding rules partagées par RAM (Resource Access Manager).</div>
                         <div class="item"><span class="tag">Resolver rules</span> centraliser les règles dans un compte
                             réseau et les partager avec RAM. Attention aux boucles de forwarding, à la résolution
                             conditionnelle et aux security groups des endpoints.</div>
@@ -1813,10 +1813,10 @@
                         <div class="item"><span class="tag">Private Hosted Zone</span> associer à plusieurs VPC (ou
                             architecture centralisée selon le besoin). Une zone publique et privée de même nom ont des
                             réponses différentes selon le point de résolution.</div>
-                        <div class="item"><span class="tag">PrivateLink</span> provider → NLB → endpoint service ;
+                        <div class="item"><span class="tag">PrivateLink</span> provider → NLB (Network Load Balancer) → endpoint service ;
                             consumer → interface endpoint. Accès unidirectionnel au service, sans route réseau globale
                             ni CIDR non chevauchant requis.</div>
-                        <div class="item"><span class="tag">Overlapping CIDR</span> éviter Peering/TGW IP routing.
+                        <div class="item"><span class="tag">Overlapping CIDR</span> éviter Peering/Transit Gateway IP routing.
                             PrivateLink résout l’exposition service-to-service ; Private NAT peut traduire des flux
                             bidirectionnels quand une vraie connectivité IP est nécessaire.</div>
                         <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> SAP Gotcha :</b> PrivateLink
@@ -1826,9 +1826,9 @@
 
                     <article class="card security searchable">
                         <h2><i class="fas fa-key"></i> KMS, conformité &amp; cross-account</h2>
-                        <div class="item"><span class="tag">KMS key policy</span> dans un compte sécurité : autoriser
+                        <div class="item"><span class="tag">KMS (Key Management Service) key policy</span> dans un compte sécurité : autoriser
                             l’utilisation par le compte consommateur
-                            (<code>Principal: arn:aws:iam::CompteB:root</code>), puis la policy IAM du rôle consommateur
+                            (<code>Principal: arn:aws:IAM (Identity and Access Management)::CompteB:root</code>), puis la policy IAM (Identity and Access Management) du rôle consommateur
                             doit aussi permettre l’action. Les deux portes sont nécessaires.</div>
                         <div class="item"><span class="tag">Multi-Region keys</span> clés répliquées avec même key
                             material/logical key ID pour déchiffrer localement des données répliquées sans appel réseau
@@ -1855,7 +1855,7 @@
                         <h2><i class="fas fa-bolt"></i> DR d’entreprise : RTO/RPO</h2>
                         <div class="item"><span class="tag">RTO</span> temps de remise en service ; <span
                                 class="tag">RPO</span> fenêtre de perte. Définir les objectifs par application et
-                            classer les dépendances (DNS, IAM, secrets, réseau, données, observabilité).</div>
+                            classer les dépendances (DNS, IAM (Identity and Access Management), secrets, réseau, données, observabilité).</div>
                         <table>
                             <thead>
                                 <tr>
@@ -1872,7 +1872,7 @@
                                 </tr>
                                 <tr>
                                     <td>Pilot light</td>
-                                    <td>RDS/Aurora réplica, données synchronisées, stack minimale</td>
+                                    <td>RDS (Relational Database Service)/Aurora réplica, données synchronisées, stack minimale</td>
                                     <td>RPO bas, compute à démarrer ; activation orchestrée.</td>
                                 </tr>
                                 <tr>
@@ -1907,13 +1907,13 @@
                             en mode compliance ; combiner copies cross-account/cross-Region et politiques Organizations.
                         </div>
                         <div class="item"><span class="tag">FIS</span> Fault Injection Service teste volontairement des
-                            défaillances (chaos engineering) ; limiter l’expérimentation par IAM, tags, <b>Stop
+                            défaillances (chaos engineering) ; limiter l’expérimentation par IAM (Identity and Access Management), tags, <b>Stop
                                 Conditions</b> CloudWatch automatiques et fenêtres approuvées.</div>
                         <div class="item"><span class="tag">Runbook</span> inclure quotas, IAM, secrets, certificats
                             ACM, DNS/TTL, réplication, dépendances tierces, observabilité, validation métier et
                             procédure de retour arrière.</div>
                         <div class="item"><span class="tag">SSM Incident Manager</span> gère la <b>réponse aux
-                            incidents</b> (paging/personnes de garde via AWS Chatbot / Amazon SNS, chronologie d'incident,
+                            incidents</b> (paging/personnes de garde via AWS Chatbot / Amazon SNS (Simple Notification Service), chronologie d'incident,
                             capture des étapes, engagement avec des runbooks SSM Automations pour l'auto-résolution) et
                             publie un <b>post-incident review</b>. À distinguer de CloudWatch (métriques/alarmes) et
                             d'AWS Health (événements AWS) : Incident Manager orchestre la réponse humaine.</div>
@@ -1946,7 +1946,7 @@
                                 <tr>
                                     <td>Rehost</td>
                                     <td>Lift and shift</td>
-                                    <td>Application Migration Service (MGN) vers EC2.</td>
+                                    <td>Application Migration Service vers EC2.</td>
                                 </tr>
                                 <tr>
                                     <td>Relocate</td>
@@ -1956,7 +1956,7 @@
                                 <tr>
                                     <td>Replatform</td>
                                     <td>Optimiser légèrement</td>
-                                    <td>Oracle/MySQL vers RDS ; conteneur vers ECS/Fargate.</td>
+                                    <td>Oracle/MySQL vers RDS (Relational Database Service) ; conteneur vers ECS (Elastic Container Service)/Fargate.</td>
                                 </tr>
                                 <tr>
                                     <td>Repurchase</td>
@@ -1966,22 +1966,22 @@
                                 <tr>
                                     <td>Refactor / re-architect</td>
                                     <td>Cloud-native</td>
-                                    <td>Découpler vers Lambda, EventBridge, SQS, DynamoDB.</td>
+                                    <td>Découpler vers Lambda, EventBridge, SQS (Simple Queue Service), DynamoDB.</td>
                                 </tr>
                             </tbody>
                         </table>
-                        <div class="item"><span class="tag">MGN</span> réplication bloc continue via agent et staging
-                            area ; cutover avec downtime réduit (< 10 min). <span class="tag">DMS</span> full load + CDC
-                                pour bases hétérogènes ; <span class="tag">SCT</span> conversion de schéma et
+                        <div class="item"><span class="tag">Application Migration Service</span> réplication bloc continue via agent et staging
+                            area ; cutover avec downtime réduit (< 10 min). <span class="tag">Database Migration Service</span> full load + CDC
+                                pour bases hétérogènes ; <span class="tag">Schema Conversion Tool</span> conversion de schéma et
                                 assessment.</div>
-                        <div class="item"><span class="tag">DataSync</span> NAS/NFS/SMB vers S3/EFS/FSx via agent,
+                        <div class="item"><span class="tag">DataSync</span> NAS/NFS/SMB vers S3/EFS (Elastic File System)/FSx via agent,
                             accéléré sur réseau (10x plus rapide) ; <span class="tag">Snowball/Snowcone</span> transfert
                             physique lorsque bande passante insuffisante ou volume massif.</div>
-                        <div class="item"><span class="tag">Modernisation</span> conteneuriser sur ECS/EKS, exécuter
-                            Fargate, API Gateway/Lambda pour serverless, EventBridge pour événements et SQS/SNS pour
+                        <div class="item"><span class="tag">Modernisation</span> conteneuriser sur ECS/EKS (Elastic Kubernetes Service), exécuter
+                            Fargate, API Gateway/Lambda pour serverless, EventBridge pour événements et SQS/SNS (Simple Notification Service) pour
                             asynchronisme.</div>
-                        <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> SAP Gotcha :</b> DMS migre
-                            les données mais ne convertit pas entièrement un moteur propriétaire : utiliser SCT pour
+                        <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> SAP Gotcha :</b> Database Migration Service migre
+                            les données mais ne convertit pas entièrement un moteur propriétaire : utiliser Schema Conversion Tool pour
                             Oracle→PostgreSQL, puis traiter manuellement les incompatibilités SQL.</div>
                     </article>
 
@@ -1992,14 +1992,14 @@
                             cartographie les processus et dépendances réseau). <b>Migration Evaluator</b> modélise le
                             TCO et analyse les coûts.
                         </div>
-                        <div class="item"><span class="tag">Factory</span> landing zone, comptes, réseau, IAM, logging
+                        <div class="item"><span class="tag">Factory</span> landing zone, comptes, réseau, IAM (Identity and Access Management), logging
                                 et templates IaC prêts avant la première vague. Standardiser AMI, tags, backup,
                                 monitoring et rollback. <span class="tag">Migration Hub</span> centralise le <b>suivi
                                 (tracking) et l'orchestration</b> des migrations (statut des apps, progression) et <b>se
-                                connecte aux outils</b> (MGN, DMS, ADS, Server Migration Service) en un seul emplacement
-                                ; l'<b>Application Migration Service (MGN)</b> réalise la réplication des serveurs.</div>
+                                connecte aux outils</b> (Application Migration Service, Database Migration Service, ADS, Server Migration Service) en un seul emplacement
+                                ; l'<b>Application Migration Service</b> réalise la réplication des serveurs.</div>
                         <div class="item"><span class="tag">Data</span> full load → CDC → validation des
-                            compteurs/checksums → gel court → cutover → observation. Mesurer lag DMS, erreurs
+                            compteurs/checksums → gel court → cutover → observation. Mesurer le lag de Database Migration Service, erreurs
                             applicatives et capacité cible.</div>
                         <div class="item"><span class="tag">Files</span> DataSync pour transferts récurrents et vérifiés
                             ; Storage Gateway pour accès hybride ; Snowball/Snowcone quand la bande passante rend le
@@ -2058,7 +2058,7 @@
                             une seule opération ; s'intègre nativement avec AWS Organizations pour auto-déployer
                             automatiquement sur tout nouveau compte ajouté dans une OU.</div>
                         <div class="item"><span class="tag">Gestion du cycle de vie</span> <b>DeletionPolicy</b>
-                            (<code>Retain</code> pour préserver S3/RDS lors de la suppression de stack,
+                            (<code>Retain</code> pour préserver S3/RDS (Relational Database Service) lors de la suppression de stack,
                             <code>Snapshot</code> pour créer un snapshot de sauvegarde, <code>Delete</code>) et
                             <b>UpdateReplacePolicy</b>.
                         </div>
@@ -2080,13 +2080,13 @@
                         <div class="item"><span class="tag">EventBridge</span> bus central et règles par événement pour
                             découpler domaines. Archive/replay et schema registry aident la gouvernance des contrats.
                             Supporte événements AWS, SaaS (Salesforce) et custom.</div>
-                        <div class="item"><span class="tag">SQS</span> buffer de back-pressure avec visibilité, retry et
-                            DLQ. Garantir idempotence car Standard est at-least-once ; FIFO seulement si
+                        <div class="item"><span class="tag">SQS (Simple Queue Service)</span> buffer de back-pressure avec visibilité, retry et
+                            Dead-Letter Queue. Garantir idempotence car Standard est at-least-once ; FIFO seulement si
                             ordre/déduplication nécessaires.</div>
-                        <div class="item"><span class="tag">SNS</span> fan-out vers plusieurs consommateurs ; combiner
+                        <div class="item"><span class="tag">SNS (Simple Notification Service)</span> fan-out vers plusieurs consommateurs ; combiner
                             SNS→SQS pour isoler les vitesses de traitement. <span class="tag">Step Functions</span> gère
                             workflow et compensation (Saga). Standard vs Express.</div>
-                        <div class="item"><span class="tag">Conteneurs &amp; Modernisation</span> <b>App Runner</b> pour APIs web simples 1-click (équivalent Cloud Run) ; <b>ECS + Fargate</b> pour architectures d'entreprise (sidecars, workers SQS/batch, micro-segmentation <code>awsvpc</code>) ; <b>EKS</b> pour gouvernance Kubernetes/portabilité multi-cloud (équiv. GKE Autopilot/Standard). Utiliser <b>Fargate Spot</b> et Savings Plans pour charges continues.</div>
+                        <div class="item"><span class="tag">Conteneurs &amp; Modernisation</span> <b>App Runner</b> pour APIs web simples 1-click (équivalent Cloud Run) ; <b>ECS (Elastic Container Service) + Fargate</b> pour architectures d'entreprise (sidecars, workers SQS/batch, micro-segmentation <code>awsvpc</code>) ; <b>EKS (Elastic Kubernetes Service)</b> pour gouvernance Kubernetes/portabilité multi-cloud (équiv. GKE Autopilot/Standard). Utiliser <b>Fargate Spot</b> et Savings Plans pour charges continues.</div>
                         <div class="architecture"><strong>Pattern de migration :</strong> API facade → strangler routing
                             → nouveau service → EventBridge/SQS → réplication/CDC → observabilité. Déployer blue/green,
                             canary et feature flags pour limiter le risque.</div>
@@ -2136,12 +2136,12 @@
                             Glue DataBrew pour préparation visuelle et Glue Schema Registry.</div>
                         <div class="item"><span class="tag">Athena</span> SQL sans cluster sur S3 ; contrôler le coût en
                             limitant les scans par partitions et formats compressés. <b>Athena Federated Query</b>
-                            interroge des sources hétérogènes (RDS, DynamoDB, API) via Lambda.</div>
+                            interroge des sources hétérogènes (RDS (Relational Database Service), DynamoDB, API) via Lambda.</div>
                         <div class="item"><span class="tag">Redshift</span> warehouse relationnel analytique ; RA3
                             sépare compute/storage, Spectrum interroge S3 directement, Redshift Serverless ajuste les
                             RPUs, et Concurrency Scaling gère les pics.</div>
                         <div class="item"><span class="tag">EMR</span> plateforme Big Data managée pour frameworks
-                            distribués (Spark, Hadoop, Hive, Presto, Flink) sur EC2, EKS ou EMR Serverless.</div>
+                            distribués (Spark, Hadoop, Hive, Presto, Flink) sur EC2, EKS (Elastic Kubernetes Service) ou EMR Serverless.</div>
                         <div class="item"><span class="tag">Kinesis / MSK</span> Kinesis est AWS-native et serverless
                             pour streaming ; MSK convient à la compatibilité Kafka et au contrôle de l’écosystème Kafka.
                         </div>
@@ -2175,12 +2175,12 @@
                             </tr>
                             <tr>
                                 <td>Beaucoup de VPC, segmentation et hybride</td>
-                                <td><b>TGW + RAM + route tables segmentées + DXGW/VPN</b></td>
+                                <td><b>Transit Gateway + RAM + route tables segmentées + Direct Connect Gateway/VPN</b></td>
                                 <td>Full mesh de VPC Peering non transitif.</td>
                             </tr>
                             <tr>
                                 <td>Interconnexion de sites distants on-prem via réseau AWS</td>
-                                <td><b>Direct Connect + DX SiteLink</b></td>
+                                <td><b>Direct Connect + SiteLink</b></td>
                                 <td>Routage full-mesh via VPN IPsec complexes sur Internet.</td>
                             </tr>
                             <tr>
@@ -2191,11 +2191,11 @@
                             <tr>
                                 <td>CIDR qui se chevauchent, accès à un service</td>
                                 <td><b>PrivateLink via NLB/endpoint service</b></td>
-                                <td>Peering ou TGW, impossibles avec routes conflictuelles.</td>
+                                <td>Peering ou Transit Gateway, impossibles avec routes conflictuelles.</td>
                             </tr>
                             <tr>
                                 <td>Inspection de sécurité centralisée sans goulot d'étranglement</td>
-                                <td><b>TGW avec Appliance Mode activé + Gateway Load Balancer (GWLB)</b></td>
+                                <td><b>Transit Gateway avec Appliance Mode activé + Gateway Load Balancer</b></td>
                                 <td>Proxy EC2 unique sans HA ou routage asymétrique cassant le stateful.</td>
                             </tr>
                             <tr>
@@ -2216,7 +2216,7 @@
                             </tr>
                             <tr>
                                 <td>DB hétérogène, downtime minimal</td>
-                                <td><b>DMS full load + CDC, SCT pour schéma</b></td>
+                                <td><b>Database Migration Service full load + CDC, Schema Conversion Tool pour schéma</b></td>
                                 <td>Dump/restore manuel seul pendant une longue fenêtre.</td>
                             </tr>
                             <tr>
@@ -2281,16 +2281,16 @@
                         <div class="case-content">
                             <h3><i class="fas fa-bullseye"></i> Contraintes</h3>
                             <ul>
-                                <li>Plusieurs sites avec CIDR historiques identiques, liaison DX principale avec
+                                <li>Plusieurs sites avec CIDR historiques identiques, liaison Direct Connect principale avec
                                     redondance maximale et VPN de secours.</li>
                                 <li>Exposer progressivement des APIs migrées sans connecter les réseaux entiers.</li>
                             </ul>
                             <h3><i class="fas fa-network-wired"></i> Architecture</h3>
-                            <div class="architecture"><strong>DX redondant (Maximum Resiliency) + VPN</strong> →
-                                <strong>DXGW/TGW</strong> pour les préfixes non conflictuels avec <strong>VPC
-                                    d'inspection centrale (GWLB / Appliance Mode)</strong> ;
+                            <div class="architecture"><strong>Direct Connect redondant (Maximum Resiliency) + VPN</strong> →
+                                <strong>Direct Connect Gateway/Transit Gateway</strong> pour les préfixes non conflictuels avec <strong>VPC
+                                    d'inspection centrale (Gateway Load Balancer / Appliance Mode)</strong> ;
                                 <strong>PrivateLink</strong> (NLB + endpoint service) pour les services aux CIDR
-                                conflictuels ; <strong>MGN/DMS/SCT</strong> pour migrer ; <strong>ECS/Fargate +
+                                conflictuels ; <strong>Application Migration Service / Database Migration Service / Schema Conversion Tool</strong> pour migrer ; <strong>ECS/Fargate +
                                     EventBridge/SQS</strong> pour moderniser.
                             </div>
                             <div class="gotcha"><b>SAP Gotcha :</b> PrivateLink expose un service, il ne résout pas une
@@ -2310,7 +2310,7 @@
                             <h3><i class="fas fa-network-wired"></i> Architecture</h3>
                             <div class="architecture"><strong>CloudFront + WAF</strong> en edge → <strong>API
                                     Gateway/Lambda ou ECS Fargate</strong> → <strong>DynamoDB Global Tables avec
-                                    DAX</strong> pour accès clé-valeur mondial ; <strong>SQS FIFO + Step
+                                    DynamoDB Accelerator(DAX)</strong> pour accès clé-valeur mondial ; <strong>SQS FIFO + Step
                                     Functions</strong> pour commandes ; <strong>Cost Allocation Tags/Budgets</strong>
                                 pour FinOps.</div>
                             <div class="gotcha"><b>SAP Gotcha :</b> ne pas choisir une base relationnelle uniquement
