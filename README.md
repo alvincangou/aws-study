@@ -9,7 +9,7 @@ Fiche de révision interactive dédiée à l’architecture cloud AWS et aux cer
 - Navigation par catégories grâce aux onglets.
 - Mode clair et mode sombre.
 - Mise en page responsive pour ordinateur, tablette et mobile.
-- Impression du contenu pour une utilisation hors ligne.
+- Impression optimisée (`Ctrl+P` / `Cmd+P`) : les deux parcours de révision sont imprimés intégralement, sans recherche ni navigation.
 
 ## Technologies
 
@@ -17,18 +17,25 @@ Fiche de révision interactive dédiée à l’architecture cloud AWS et aux cer
 - CSS3 intégré à la page
 - JavaScript natif intégré à la page
 - [Font Awesome 6](https://fontawesome.com/) chargé depuis cdnjs pour les icônes
+- Feuille de style d'impression (`@media print`) intégrée pour un rendu papier optimal des deux parcours
 
 ## Structure du projet
 
 ```text
 .
 ├── index.html   # Page principale et contenu de révision
-└── readme.md    # Documentation du projet
+└── README.md    # Documentation du projet
 ```
 
 ## Utilisation
 
 Aucune installation ou compilation n’est nécessaire. Ouvrez simplement `index.html` dans un navigateur moderne.
+
+### Impression
+
+Utilisez la boîte de dialogue d’impression du navigateur (`Ctrl+P` sous Windows/Linux, `Cmd+P` sur macOS). Le rendu `@media print` : affiche automatiquement **les deux parcours** (SAA-C03 et SAP-C02) quelle que soit l’onglet sélectionné, masque la recherche et la navigation, et évite de couper les tableaux, les cartes et les sections de contenu entre deux pages.
+
+> **Remarque hors ligne :** les icônes (Font Awesome) sont chargées depuis un CDN. En l’absence de connexion au moment du chargement, elles peuvent ne pas s’afficher ; le contenu textuel reste entièrement lisible et imprimable.
 
 ## Page en ligne
 
