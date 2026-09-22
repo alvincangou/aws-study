@@ -1100,9 +1100,69 @@
                         <div class="item"><span class="tag">FSx</span> Windows File Server pour SMB/AD, Lustre pour
                             HPC/ML et throughput élevé, NetApp ONTAP pour fonctions enterprise, OpenZFS pour workloads
                             ZFS.</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Axe de comparaison</th>
+                                    <th>Approche «&nbsp;live&nbsp;» (événementielle)</th>
+                                    <th>S3 Batch Operations</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Déclenchement</td>
+                                    <td>Automatique et immédiat : configuré une fois, puis traitement à chaque upload ou
+                                        modification d'objet.</td>
+                                    <td>Job à la demande (console, CLI, SDK) sur une liste d'objets ; enchaînable et
+                                        planifiable via EventBridge + Lambda.</td>
+                                </tr>
+                                <tr>
+                                    <td>Données ciblées</td>
+                                    <td><b>Uniquement les nouveaux objets</b> et les mises à jour postérieures à la
+                                        mise en place (notification ou règle de réplication).</td>
+                                    <td>Objets <b>existants / historiques</b> du bucket, listés dans un manifest
+                                        (rapport S3 Inventory ou fichier CSV).</td>
+                                </tr>
+                                <tr>
+                                    <td>Mécanisme</td>
+                                    <td>S3 Event Notifications vers SQS/SNS/Lambda ou EventBridge ; réplication live
+                                        <b>SRR/CRR</b> asynchrone (24–48 h typiques, non garanti) — <b>S3 RTC</b> porte
+                                        l'engagement à 99,9 % des objets en 15 min (SLA).</td>
+                                    <td>Moteur de jobs + <b>manifest</b> (S3 Inventory ou CSV) appliquant une API par
+                                        objet : copie, tagging, ACL, Object Lock, restore Glacier ou invocation Lambda,
+                                        avec <b>rapport de fin</b>.</td>
+                                </tr>
+                                <tr>
+                                    <td>Objectif principal</td>
+                                    <td>Pipelines temps réel, synchronisation continue, DR/souveraineté (CRR) ou
+                                        agrégation d'événements à la création de l'objet (SRR).</td>
+                                    <td>Backfill, migration ou cross-account de masse, re-chiffrement, changement de
+                                        métadonnées/tags, restauration Glacier, rattrapage d'objets non répliqués.</td>
+                                </tr>
+                                <tr>
+                                    <td>Volume &amp; limites</td>
+                                    <td>Par objet, à la création ; livraison «&nbsp;at-least-once&nbsp;» (surveiller
+                                        doublons/perte) et risque de boucle si la destination re-déclenche la source.</td>
+                                    <td>4 milliards d'objets par job par défaut ; jusqu'à 20 milliards pour Copy,
+                                        Tagging, Object Lock, Lambda et <b>Batch Replication</b> ; 6 jobs
+                                        <b>Batch Replication</b> actifs max par compte ; facturé même si le job est
+                                        annulé.</td>
+                                </tr>
+                                <tr>
+                                    <td>Traçabilité</td>
+                                    <td>Métriques CloudWatch de réplication et notifications d'événements de réplication,
+                                        délai garanti avec S3 RTC.</td>
+                                    <td>Suivi de progression et <b>completion report</b> détaillé par tâche : managed,
+                                        auditable et serverless.</td>
+                                </tr>
+                            </tbody>
+                        </table>
                         <div class="highlight"><b>Repères :</b> EBS = bloc et une AZ ; EFS = fichiers POSIX partagé ; S3
                             = objets et API HTTP ; FSx = protocole/plateforme spécialisée. Ne pas monter un volume EBS
-                            normal simultanément sur plusieurs AZ.</div>
+                            normal simultanément sur plusieurs AZ.
+                            <b>Distinction examen :</b> répliquer des objets <b>déjà présents</b> dans le bucket ne
+                            relève pas de CRR/SRR mais de <b>S3 Batch Replication</b> ; le rapport S3 Inventory ne
+                            réplique rien, il fournit le manifest CSV/Parquet qui alimente le job.</div>
                     </article>
 
                     <article class="card storage searchable">
@@ -1828,6 +1888,12 @@
                                 <td>Archive économique et immuable WORM</td>
                                 <td><b>S3 Glacier + Object Lock</b></td>
                                 <td>Lifecycle/retention conforme ; ne pas garder toutes les données en Standard.</td>
+                            </tr>
+                            <tr>
+                                <td>Backfill / migration de masse d'objets déjà présents dans un bucket</td>
+                                <td><b>S3 Batch Operations (Batch Replication + rapport S3 Inventory)</b></td>
+                                <td>CRR/SRR ne répliquent que les nouveaux objets ; Inventory fournit le manifest, pas la
+                                    copie.</td>
                             </tr>
                             <tr>
                                 <td>Accès terminal sécurisé à EC2 sans bastion ni port ouvert</td>
