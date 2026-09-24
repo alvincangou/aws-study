@@ -1085,12 +1085,13 @@
                             volumineux, presigned URL pour accès temporaire, Transfer Acceleration pour longue distance,
                             CloudFront pour cache global. S3 fournit une forte cohérence read-after-write sur les
                             opérations d’objets ; gérer tout de même retries, erreurs et conflits de réplication.</div>
-                        <div class="item"><span class="tag">S3 Object Lambda (Access Points)</span> transformer l’objet à
-                            la volée (redimensionnement d’images, masquage de données, conversion de format) via une
-                            fonction Lambda attachée à un <b>S3 Object Lambda Access Point</b>, sans copier les données.
-                            <span class="tag">S3 Select</span> exécute une requête SQL simple sur un objet CSV/JSON/Parquet
-                            pour ne récupérer que les lignes/colonnes utiles et <b>réduire les transferts et les coûts</b>.
-                        </div>
+                        <div class="item"><span class="tag">Transformations &amp; requêtes à la volée</span> une fonction
+                            <b>Lambda</b> invoquée par <b>CloudFront</b> (Function URL ou API Gateway) ou <b>Lambda@Edge</b>
+                            transforme l’objet pendant la lecture (redimensionnement d’images, masquage de données,
+                            conversion de format) sans dupliquer les données. Pour interroger les données en place :
+                            <b>Athena</b> (SQL serverless sur S3 et tables Iceberg) et les <b>S3 Metadata tables</b>
+                            (journal de changements et inventaire requêtables) remplacent les anciennes fonctions
+                            objet par objet.</div>
                         <div class="item"><span class="tag">EBS (Elastic Block Store)</span> Bloc attaché à une AZ : gp3 (SSD général,
                             IOPS/throughput séparables), io2 Block Express (IOPS et durabilité critiques), st1
                             (throughput séquentiel), sc1 (cold). Snapshots incrémentaux S3, chiffrables KMS.</div>
@@ -1100,63 +1101,19 @@
                         <div class="item"><span class="tag">FSx</span> Windows File Server pour SMB/AD, Lustre pour
                             HPC/ML et throughput élevé, NetApp ONTAP pour fonctions enterprise, OpenZFS pour workloads
                             ZFS.</div>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Axe de comparaison</th>
-                                    <th>Approche «&nbsp;live&nbsp;» (événementielle)</th>
-                                    <th>S3 Batch Operations</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Déclenchement</td>
-                                    <td>Automatique et immédiat : configuré une fois, puis traitement à chaque upload ou
-                                        modification d'objet.</td>
-                                    <td>Job à la demande (console, CLI, SDK) sur une liste d'objets ; enchaînable et
-                                        planifiable via EventBridge + Lambda.</td>
-                                </tr>
-                                <tr>
-                                    <td>Données ciblées</td>
-                                    <td><b>Uniquement les nouveaux objets</b> et les mises à jour postérieures à la
-                                        mise en place (notification ou règle de réplication).</td>
-                                    <td>Objets <b>existants / historiques</b> du bucket, listés dans un manifest
-                                        (rapport S3 Inventory ou fichier CSV).</td>
-                                </tr>
-                                <tr>
-                                    <td>Mécanisme</td>
-                                    <td>S3 Event Notifications vers SQS/SNS/Lambda ou EventBridge ; réplication live
-                                        <b>SRR/CRR</b> asynchrone (24–48 h typiques, non garanti) — <b>S3 RTC</b> porte
-                                        l'engagement à 99,9 % des objets en 15 min (SLA).</td>
-                                    <td>Moteur de jobs + <b>manifest</b> (S3 Inventory ou CSV) appliquant une API par
-                                        objet : copie, tagging, ACL, Object Lock, restore Glacier ou invocation Lambda,
-                                        avec <b>rapport de fin</b>.</td>
-                                </tr>
-                                <tr>
-                                    <td>Objectif principal</td>
-                                    <td>Pipelines temps réel, synchronisation continue, DR/souveraineté (CRR) ou
-                                        agrégation d'événements à la création de l'objet (SRR).</td>
-                                    <td>Backfill, migration ou cross-account de masse, re-chiffrement, changement de
-                                        métadonnées/tags, restauration Glacier, rattrapage d'objets non répliqués.</td>
-                                </tr>
-                                <tr>
-                                    <td>Volume &amp; limites</td>
-                                    <td>Par objet, à la création ; livraison «&nbsp;at-least-once&nbsp;» (surveiller
-                                        doublons/perte) et risque de boucle si la destination re-déclenche la source.</td>
-                                    <td>4 milliards d'objets par job par défaut ; jusqu'à 20 milliards pour Copy,
-                                        Tagging, Object Lock, Lambda et <b>Batch Replication</b> ; 6 jobs
-                                        <b>Batch Replication</b> actifs max par compte ; facturé même si le job est
-                                        annulé.</td>
-                                </tr>
-                                <tr>
-                                    <td>Traçabilité</td>
-                                    <td>Métriques CloudWatch de réplication et notifications d'événements de réplication,
-                                        délai garanti avec S3 RTC.</td>
-                                    <td>Suivi de progression et <b>completion report</b> détaillé par tâche : managed,
-                                        auditable et serverless.</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div class="item"><span class="tag">S3 «&nbsp;live&nbsp;» (événementiel)</span> traitement par
+                            objet en quasi temps réel : <b>S3 Event Notifications</b> vers SQS/SNS/Lambda (une seule
+                            destination par notification, livraison at-least-once) ou <b>EventBridge</b> pour tous les
+                            types d'événements et des cibles plus riches ; réplication continue <b>CRR/SRR</b> (nouveaux
+                            objets uniquement) avec <b>S3 RTC</b> à 99,9 % des objets sous 15 min ; analyse antivirus à
+                            l'upload avec <b>GuardDuty Malware Protection for S3</b> ; journal de changements
+                            <b>S3 Metadata</b>.</div>
+                        <div class="item"><span class="tag">S3 Batch Operations</span> traitement de masse des objets
+                            <b>déjà présents</b> : job à la demande (console, CLI, SDK) sur un <b>manifest</b> (rapport S3
+                            Inventory ou CSV), jusqu'à <b>4 milliards d'objets</b> par job (20 milliards pour Copy,
+                            Tagging, Object Lock, Lambda et <b>Batch Replication</b>) avec <b>completion report</b>
+                            détaillé. Cas d'usage : backfill, migration ou copie cross-account, re-chiffrement,
+                            re-tagging, restauration Glacier, rattrapage d'objets non répliqués.</div>
                         <div class="highlight"><b>Repères :</b> EBS = bloc et une AZ ; EFS = fichiers POSIX partagé ; S3
                             = objets et API HTTP ; FSx = protocole/plateforme spécialisée. Ne pas monter un volume EBS
                             normal simultanément sur plusieurs AZ.
@@ -1182,11 +1139,6 @@
                                     <td>Fichiers mappés 1:1 en objets S3 avec cache local pour accès rapide.</td>
                                 </tr>
                                 <tr>
-                                    <td><b>FSx File Gateway</b></td>
-                                    <td>SMB</td>
-                                    <td>Cache local à faible latence pour FSx Windows hébergé sur AWS.</td>
-                                </tr>
-                                <tr>
                                     <td><b>Volume Gateway (Cached)</b></td>
                                     <td>iSCSI</td>
                                     <td>Données principales dans S3 ; données fréquemment lues en cache local.</td>
@@ -1205,6 +1157,10 @@
                                 </tr>
                             </tbody>
                         </table>
+                        <div class="item"><span class="tag">FSx File Gateway (legacy)</span> fermé aux nouveaux clients
+                            depuis le 28 octobre 2024 : accéder directement au partage <b>SMB</b> de <b>FSx for Windows
+                                File Server</b>, ou passer par <b>S3 File Gateway</b> / <b>DataSync</b>, au lieu d'un cache
+                            local dédié.</div>
                         <div class="item"><span class="tag">AWS Transfer Family</span> serveurs managés SFTP, FTPS et
                             FTP pour charger/extraire des fichiers directement dans des buckets S3 ou systèmes de
                             fichiers EFS (Elastic File System) sans gérer d'infrastructure EC2.</div>
@@ -1404,9 +1360,9 @@
                     </article>
 
                     <article class="card compute searchable">
-                        <h2><i class="fas fa-cubes"></i> Conteneurs AWS : ECS, EKS, App Runner &amp; Fargate Deep Dive</h2>
+                        <h2><i class="fas fa-cubes"></i> Conteneurs AWS : ECS, EKS &amp; Fargate Deep Dive</h2>
                         <div class="item"><span class="tag">AWS Fargate</span> <b>Moteur de calcul serverless (« Le Muscle », pas un orchestrateur autonome) :</b> alloue CPU et mémoire à la demande et masque toute l'infrastructure (serveurs, OS, patchs, scaling de VM). <b>Principe fondamental :</b> Fargate n'a aucune API ni console directe pour lancer des conteneurs isolés, aucun routage web natif ni d'autoscaling autonome. C'est le moteur d'exécution (le « muscle ») qui doit impérativement être instruit et piloté par un orchestrateur (le « cerveau ») : <b>Amazon ECS (Elastic Container Service)</b> ou <b>Amazon EKS (Elastic Kubernetes Service)</b>.</div>
-                        <div class="item"><span class="tag">AWS App Runner</span> <b>Conteneurs Web Serverless managés (équivalent Google Cloud Run) :</b> plateforme PaaS tout-en-un entièrement gérée pour applications et APIs web. Déploiement direct en un clic depuis code source ou image ECR (Elastic Container Registry), attribution d'URL HTTPS, certificats TLS, équilibrage de charge et <b>scale-to-zero</b> automatiques sans gérer aucun orchestrateur (ni ECS, ni EKS, ni cluster).</div>
+                        <div class="item"><span class="tag">AWS App Runner (legacy)</span> <b>Fermé aux nouveaux clients depuis le 31 mars 2026</b> : ce PaaS de conteneurs web 1-clic (équivalent Google Cloud Run avec URL HTTPS/TLS et scale-to-zero automatiques) est remplacé par <b>ECS + Fargate</b> derrière un <b>ALB</b> (ou API Gateway) pour les APIs web, et par <b>Lambda + API Gateway</b> pour les charges événementielles légères.</div>
                         <div class="item"><span class="tag">Amazon ECS (Compute Options)</span> orchestrateur de conteneurs natif AWS, simple et hautement intégré :
                             <ul>
                                 <li><b>AWS Fargate</b> : conteneurs serverless avec zéro gestion de serveurs sous-jacents.</li>
@@ -1425,12 +1381,12 @@
                         </div>
                         <div class="item"><span class="tag">ECS IAM (Identity and Access Management) Roles</span> <b>Task Role</b> = permissions accordées au code applicatif du conteneur (S3, DynamoDB) ; <b>Task Execution Role</b> = permissions accordées à l'agent ECS (pull d'images ECR, envoi des logs CloudWatch, déchiffrement de secrets KMS (Key Management Service)/SSM).</div>
                         <div class="item"><span class="tag">ECS Networking</span> mode <code>awsvpc</code> recommandé (chaque tâche reçoit sa propre ENI et Security Group dédié, obligatoire sur Fargate).</div>
-                        <div class="item"><span class="tag">Arbitrage : ECS + Fargate vs App Runner (équiv. Cloud Run)</span> Pourquoi basculer d'App Runner vers ECS + Fargate ?
+                        <div class="item"><span class="tag">Arbitrage : ECS + Fargate vs Lambda vs EKS</span> Comment exécuter un conteneur ?
                             <ul>
-                                <li><b>Workloads non-HTTP :</b> App Runner et Cloud Run sont conçus pour les requêtes/réponses web. ECS gère les workers d'arrière-plan, consommateurs de files (SQS (Simple Queue Service), Kafka/MSK), tâches cron planifiées et pipelines batch.</li>
-                                <li><b>Multi-conteneurs (Sidecar Pattern) :</b> App Runner isole un conteneur unique. Les tâches ECS permettent la colocalisation de conteneurs partageant <code>localhost</code> (ex. application + proxy Envoy + collecteur de logs/métriques Datadog/OTel).</li>
+                                <li><b>Workloads non-HTTP :</b> une plateforme web serverless type Cloud Run ne traite que des requêtes/réponses web ; ECS gère les workers d'arrière-plan, consommateurs de files (SQS (Simple Queue Service), Kafka/MSK), tâches cron planifiées et pipelines batch.</li>
+                                <li><b>Multi-conteneurs (Sidecar Pattern) :</b> les tâches ECS permettent la colocalisation de conteneurs partageant <code>localhost</code> (ex. application + proxy Envoy + collecteur de logs/métriques Datadog/OTel), impossible avec une plateforme mono-conteneur.</li>
                                 <li><b>Contrôle réseau fin (<code>awsvpc</code>) :</b> ENI et Security Group dédiés par tâche ECS, permettant une micro-segmentation VPC granulaire, sous-réseaux privés stricts et intégration Service Mesh / PrivateLink.</li>
-                                <li><b>FinOps &amp; Fort Volume (24/7) :</b> Le coût managé d'App Runner peut être élevé en continu ; ECS offre <b>Fargate Spot</b> (jusqu'à -70%), Savings Plans et Capacity Providers mixtes.</li>
+                                <li><b>FinOps &amp; Fort Volume (24/7) :</b> une plateforme managée 1-clic coûte cher en continu ; ECS offre <b>Fargate Spot</b> (jusqu'à -70%), Savings Plans et Capacity Providers mixtes, tandis que Lambda reste optimal pour les charges événementielles courtes.</li>
                             </ul>
                         </div>
                         <table>
@@ -1443,12 +1399,6 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td><b>Conteneurs Web Serverless Autonomes</b></td>
-                                    <td><b>AWS App Runner</b></td>
-                                    <td><b>Google Cloud Run</b></td>
-                                    <td>PaaS web entièrement managé : déploiement direct (image/code), URL HTTPS/TLS, scale-to-zero. Aucun orchestrateur requis.</td>
-                                </tr>
                                 <tr>
                                     <td><b>Kubernetes Serverless (Nœuds masqués)</b></td>
                                     <td><b>Amazon EKS on Fargate</b></td>
@@ -1469,7 +1419,7 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> Piège Examen Conteneurs :</b> Fargate = moteur de calcul serverless (« muscle », pas d'orchestration autonome directe) ; App Runner = PaaS web 1-clic sans orchestrateur (Cloud Run) ; ECS = simplicité native AWS, sidecars &amp; workers non-HTTP ; EKS = standard Kubernetes &amp; portabilité ; Karpenter = autoscaling dynamique de nœuds EKS sans ASG.</div>
+                        <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> Piège Examen Conteneurs :</b> Fargate = moteur de calcul serverless (« muscle », pas d'orchestration autonome directe) ; Lambda = exécution événementielle sans serveur, sans cluster ni load balancer à gérer ; ECS = simplicité native AWS, sidecars &amp; workers non-HTTP ; EKS = standard Kubernetes &amp; portabilité ; Karpenter = autoscaling dynamique de nœuds EKS sans ASG. Les PaaS de conteneurs web 1-clic (Cloud Run, App Runner) ne sont plus ouverts aux nouveaux clients : cibler ECS + Fargate derrière un ALB.</div>
                     </article>
 
                     <article class="card deployment searchable">
@@ -1548,7 +1498,7 @@
                         <div class="item"><span class="tag">Redshift</span> data warehouse analytique ; <span
                                 class="tag">OpenSearch</span> recherche/logs ; <span class="tag">Neptune</span> graph ;
                             <span class="tag">DocumentDB</span> document compatible MongoDB ; <span
-                                class="tag">Timestream</span> séries temporelles.
+                                class="tag">Timestream for InfluxDB</span> séries temporelles (le service Timestream for LiveAnalytics est fermé aux nouveaux clients depuis le 20 juin 2025).
                         </div>
                         <div class="highlight"><b>Choix rapide :</b> transactions relationnelles = RDS/Aurora ;
                             clé-valeur à très grande échelle = DynamoDB ; recherche texte/logs = OpenSearch ; analytique
@@ -1633,8 +1583,9 @@
                         <div class="item"><span class="tag">Kinesis Video Streams</span> ingestion, stockage sécurisé et
                             diffusion de flux <b>vidéo et audio</b> en direct (caméras de sécurité, capteurs IoT,
                             drones) ; supporte <b>WebRTC</b> pour des communications interactives bidirectionnelles à
-                            ultra-faible latence et s'intègre avec <b>Amazon Rekognition Video</b> pour l'analyse
-                            visuelle en temps réel.</div>
+                            ultra-faible latence ; l'analyse visuelle se fait avec <b>Amazon Rekognition Image</b>
+                            appliqué aux frames extraites du flux (le streaming vidéo managé Rekognition est fermé aux
+                            nouveaux clients depuis le 30 avril 2026).</div>
                         <div class="item"><span class="tag">Amazon MSK</span> Apache Kafka managé (brokers multi-AZ,
                             connecteurs Kafka Connect, MSK Serverless) pour les architectures nécessitant une
                             compatibilité standard open-source Kafka sans administrer les clusters d'infrastructure.
@@ -1672,7 +1623,8 @@
                                     <td><b>Video Streams</b></td>
                                     <td>Video / WebRTC</td>
                                     <td>Temps réel interactif</td>
-                                    <td>Caméras IoT, vision par ordinateur avec Rekognition Video, audio/vidéo
+                                    <td>Caméras IoT, frames analysées par Rekognition Image (streaming managé : plus
+                                        ouvert aux nouveaux clients), audio/vidéo
                                         bidirectionnel.</td>
                                 </tr>
                                 <tr>
@@ -2096,9 +2048,11 @@
                             adaptés. Re-encryption KMS nécessaire lors d’un changement de clé.</div>
                         <div class="item"><span class="tag">SCP vs key policy</span> une SCP peut bloquer l’appel KMS
                             même si key policy et IAM autorisent ; la policy KMS ne peut pas outrepasser une SCP.</div>
-                        <div class="item"><span class="tag">Compliance</span> Config conformance packs, Security Hub
-                            standards, Macie pour PII S3, Audit Manager pour preuves et CloudTrail Lake pour analyse des
-                            événements sur 7 ans.</div>
+                        <div class="item"><span class="tag">Compliance</span> Config conformance packs et Security Hub
+                            standards pour les contrôles, Macie pour la détection de PII dans S3, CloudTrail (management
+                            + data events) exporté vers S3 pour la conservation longue, puis <b>Athena</b>,
+                            <b>CloudWatch Logs Insights</b> ou <b>OpenSearch</b> pour l'analyse (Audit Manager et
+                            CloudTrail Lake sont fermés aux nouveaux clients depuis le 31 mars 2026).</div>
                         <div class="item"><span class="tag">KMS External Key Store (XKS)</span> lorsque la règle métier
                             exige que le <b>matériel de clé ne quitte jamais</b> un HSM contrôlé par le client :
                             <b>CloudHSM</b> (HSM dédié) ou <b>External Key Store (XKS)</b> relie KMS à un HSM externe pour
@@ -2169,11 +2123,13 @@
                         <div class="item"><span class="tag">Runbook</span> inclure quotas, IAM, secrets, certificats
                             ACM, DNS/TTL, réplication, dépendances tierces, observabilité, validation métier et
                             procédure de retour arrière.</div>
-                        <div class="item"><span class="tag">SSM Incident Manager</span> gère la <b>réponse aux
-                            incidents</b> (paging/personnes de garde via AWS Chatbot / Amazon SNS (Simple Notification Service), chronologie d'incident,
-                            capture des étapes, engagement avec des runbooks SSM Automations pour l'auto-résolution) et
-                            publie un <b>post-incident review</b>. À distinguer de CloudWatch (métriques/alarmes) et
-                            d'AWS Health (événements AWS) : Incident Manager orchestre la réponse humaine.</div>
+                        <div class="item"><span class="tag">Réponse aux incidents</span> CloudWatch Alarms et EventBridge
+                            déclenchent <b>AWS Chatbot</b> / Amazon SNS (Simple Notification Service) pour le paging des
+                            personnes de garde, les <b>runbooks SSM Automation</b> pour l'auto-résolution et l'ouverture de
+                            tickets vers l'outil de gestion de service ; l'historique et le <b>post-incident review</b>
+                            s'appuient sur CloudWatch et CloudTrail (SSM Incident Manager est fermé aux nouveaux clients
+                            depuis le 7 novembre 2025). À distinguer de CloudWatch (métriques/alarmes) et d'AWS Health
+                            (événements AWS) : ces briques orchestrent la réponse humaine.</div>
                         <div class="gotcha"><b><i class="fas fa-triangle-exclamation"></i> SAP Gotcha :</b> une
                             architecture multi-AZ ne suffit pas si le déploiement, les quotas régionaux, les secrets ou
                             les permissions de restauration restent dans une seule région.</div>
@@ -2232,8 +2188,9 @@
                                 pour bases hétérogènes ; <span class="tag">Schema Conversion Tool</span> conversion de schéma et
                                 assessment.</div>
                         <div class="item"><span class="tag">DataSync</span> NAS/NFS/SMB vers S3/EFS (Elastic File System)/FSx via agent,
-                            accéléré sur réseau (10x plus rapide) ; <span class="tag">Snowball/Snowcone</span> transfert
-                            physique lorsque bande passante insuffisante ou volume massif.</div>
+                            accéléré sur réseau (10x plus rapide) ; <span class="tag">S3 Data Transfer Terminal</span>
+                            (ou partenaires AWS Marketplace) pour l'apport physique lorsque la bande passante est
+                            insuffisante ou le volume de données massif.</div>
                         <div class="item"><span class="tag">Modernisation</span> conteneuriser sur ECS/EKS (Elastic Kubernetes Service), exécuter
                             Fargate, API Gateway/Lambda pour serverless, EventBridge pour événements et SQS/SNS (Simple Notification Service) pour
                             asynchronisme.</div>
@@ -2243,60 +2200,35 @@
                     </article>
 
                     <article class="card deployment searchable">
-                        <h2><i class="fas fa-file-code"></i> Migration : factory, discovery &amp; Snow Family</h2>
-                        <div class="item"><span class="tag">Discover</span> <b>Application Discovery Service (ADS)</b> :
-                            <i>Discovery Connector</i> (agentless VMware) vs <i>Discovery Agent</i> (installé sur OS,
-                            cartographie les processus et dépendances réseau). <b>Migration Evaluator</b> modélise le
-                            TCO et analyse les coûts.
+                        <h2><i class="fas fa-file-code"></i> Migration : factory, discovery &amp; transfert de données</h2>
+                        <div class="item"><span class="tag">Discover</span> <b>Migration Evaluator</b> modélise le TCO,
+                            collecte l'inventaire (agent dédié ou agentless) et cartographie les processus et dépendances
+                            réseau avant migration. Il remplace l'<b>Application Discovery Service (ADS)</b>, fermé aux
+                            nouveaux clients depuis le 7 octobre 2025 (Discovery Connector en fin de support le
+                            17 novembre 2025) ; <b>AWS Transform</b> et les partenaires complètent l'analyse applicative.
                         </div>
                         <div class="item"><span class="tag">Factory</span> landing zone, comptes, réseau, IAM (Identity and Access Management), logging
                                 et templates IaC prêts avant la première vague. Standardiser AMI, tags, backup,
-                                monitoring et rollback. <span class="tag">Migration Hub</span> centralise le <b>suivi
-                                (tracking) et l'orchestration</b> des migrations (statut des apps, progression) et <b>se
-                                connecte aux outils</b> (Application Migration Service, Database Migration Service, ADS, Server Migration Service) en un seul emplacement
-                                ; l'<b>Application Migration Service</b> réalise la réplication des serveurs.</div>
+                                monitoring et rollback. Le pilotage des vagues se fait directement dans
+                                l'<b>Application Migration Service (MGN)</b> et la <b>Database Migration Service</b> :
+                                <b>Migration Hub</b> (fermé aux nouveaux clients depuis le 7 novembre 2025) et
+                                <b>Server Migration Service</b> (fin de support depuis le 1er avril 2023) sont retirés du
+                                catalogue ; l'<b>Application Migration Service</b> réalise la réplication des serveurs.</div>
                         <div class="item"><span class="tag">Data</span> full load → CDC → validation des
                             compteurs/checksums → gel court → cutover → observation. Mesurer le lag de Database Migration Service, erreurs
                             applicatives et capacité cible.</div>
                         <div class="item"><span class="tag">Files</span> DataSync pour transferts récurrents et vérifiés
-                            ; Storage Gateway pour accès hybride ; Snowball/Snowcone quand la bande passante rend le
-                            transfert réseau trop long.</div>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Dispositif Snow</th>
-                                    <th>Stockage</th>
-                                    <th>Calcul Edge</th>
-                                    <th>Cas d'usage optimal</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><b>Snowcone</b></td>
-                                    <td>8 To HDD / 14 To SSD</td>
-                                    <td>2 vCPUs, 4 Go RAM</td>
-                                    <td>Edge mobile, transport léger (2,1 kg), environnements contraints.</td>
-                                </tr>
-                                <tr>
-                                    <td><b>Snowball Edge Storage Opt.</b></td>
-                                    <td>80 To HDD / 210 To NVMe</td>
-                                    <td>40 vCPUs, 80 Go RAM</td>
-                                    <td>Migration de données en masse (TB à PB) et stockage local.</td>
-                                </tr>
-                                <tr>
-                                    <td><b>Snowball Edge Compute Opt.</b></td>
-                                    <td>42 To / 28 To NVMe</td>
-                                    <td>104 vCPUs, 416 Go RAM, GPU</td>
-                                    <td>Calcul lourd déconnecté, ML edge, traitement vidéo sur site.</td>
-                                </tr>
-                                <tr>
-                                    <td><b>Snowmobile</b></td>
-                                    <td>Jusqu'à 100 Po par camion</td>
-                                    <td>Conteneur sécurisé 45 pieds</td>
-                                    <td>Migration exaoctet pour vidage complet de datacenter.</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                            ; Storage Gateway pour accès hybride ; S3 Data Transfer Terminal ou dispositifs partenaires
+                            quand la bande passante rend le transfert réseau trop long.</div>
+                        <div class="item"><span class="tag">Transfert physique de données</span> <b>AWS Data Transfer
+                            Terminal</b> pour apporter/retirer les supports en toute sécurité, dispositifs partenaires du
+                            Marketplace pour l'offline de masse, <b>AWS Outposts</b> pour le compute et le stockage
+                            on-prem, <b>DataSync</b> pour le transfert réseau accéléré.
+                            <b>Legacy :</b> la famille <b>Snow</b> (Snowcone, Snowball Edge, Snowmobile) n'est plus
+                            commandable ni disponible pour les nouveaux clients — Snowball Edge en fin de support depuis
+                            le 12 novembre 2025 et Snowmobile depuis le 14 mars 2024. Mot-clé encore présent aux examens :
+                            le reconnaître, mais retenir DataSync / Data Transfer Terminal / Outposts comme réponses
+                            actuelles.</div>
                         <div class="item"><span class="tag">Hybrid Edge</span> <b>AWS Outposts</b> (racks AWS natifs
                             on-prem), <b>AWS Local Zones</b> (faible latence métropolitaine), <b>AWS Wavelength</b>
                             (compute 5G).</div>
@@ -2343,7 +2275,7 @@
                         <div class="item"><span class="tag">SNS (Simple Notification Service)</span> fan-out vers plusieurs consommateurs ; combiner
                             SNS→SQS pour isoler les vitesses de traitement. <span class="tag">Step Functions</span> gère
                             workflow et compensation (Saga). Standard vs Express.</div>
-                        <div class="item"><span class="tag">Conteneurs &amp; Modernisation</span> <b>App Runner</b> pour APIs web simples 1-click (équivalent Cloud Run) ; <b>ECS (Elastic Container Service) + Fargate</b> pour architectures d'entreprise (sidecars, workers SQS/batch, micro-segmentation <code>awsvpc</code>) ; <b>EKS (Elastic Kubernetes Service)</b> pour gouvernance Kubernetes/portabilité multi-cloud (équiv. GKE Autopilot/Standard). Utiliser <b>Fargate Spot</b> et Savings Plans pour charges continues.</div>
+                        <div class="item"><span class="tag">Conteneurs &amp; Modernisation</span> <b>ECS (Elastic Container Service) + Fargate</b> derrière un ALB pour les APIs web et les architectures d'entreprise (sidecars, workers SQS/batch, micro-segmentation <code>awsvpc</code>) ; <b>EKS (Elastic Kubernetes Service)</b> pour gouvernance Kubernetes/portabilité multi-cloud (équiv. GKE Autopilot/Standard). Utiliser <b>Fargate Spot</b> et Savings Plans pour charges continues.</div>
                         <div class="architecture"><strong>Pattern de migration :</strong> API facade → strangler routing
                             → nouveau service → EventBridge/SQS → réplication/CDC → observabilité. Déployer blue/green,
                             canary et feature flags pour limiter le risque.</div>
@@ -2478,13 +2410,14 @@
                             </tr>
                             <tr>
                                 <td>Cartographie complète des processus applicatifs et dépendances</td>
-                                <td><b>Application Discovery Service avec Discovery Agent (OS-installed)</b></td>
-                                <td>Discovery Connector seul (limité aux métadonnées VMware).</td>
+                                <td><b>Migration Evaluator (agent ou agentless) + AWS Transform</b></td>
+                                <td>Application Discovery Service fermé aux nouveaux clients depuis le 7 octobre 2025.</td>
                             </tr>
                             <tr>
                                 <td>Transfert de 500 To avec bande passante réseau limitée (50 Mbps)</td>
-                                <td><b>Dispositifs AWS Snowball Edge multiples</b></td>
-                                <td>Transfert sur réseau Internet/VPN (prendrait plus de 2 ans).</td>
+                                <td><b>AWS Data Transfer Terminal (ou DataSync accéléré + dispositifs partenaires)</b></td>
+                                <td>Transfert sur réseau Internet/VPN (prendrait plus de 2 ans) ; la famille Snow n'est
+                                    plus commandable.</td>
                             </tr>
                             <tr>
                                 <td>Logs d’audit impossibles à supprimer</td>
