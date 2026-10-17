@@ -292,6 +292,57 @@
             color: #7dd3fc;
         }
 
+        .badge-cache {
+            display: inline-block;
+            font-size: .74em;
+            font-weight: 600;
+            padding: 1px 7px;
+            border-radius: 12px;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .badge-before {
+            background: rgba(21, 128, 61, .12);
+            color: var(--success);
+            border: 1px solid rgba(21, 128, 61, .3);
+        }
+
+        body.dark .badge-before {
+            background: rgba(34, 197, 94, .18);
+            color: #4ade80;
+            border-color: rgba(74, 222, 128, .35);
+        }
+
+        .badge-after {
+            background: rgba(255, 153, 0, .14);
+            color: var(--aws-orange-dark);
+            border: 1px solid rgba(255, 153, 0, .35);
+        }
+
+        body.dark .badge-after {
+            background: rgba(255, 153, 0, .22);
+            color: #fbbf24;
+            border-color: rgba(251, 191, 36, .35);
+        }
+
+        .trigger-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .trigger-item {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+            font-size: .92em;
+        }
+
         .highlight,
         .gotcha {
             background-color: rgba(255, 153, 0, .12);
@@ -1046,6 +1097,44 @@
                                             <td>Node.js ou Python</td>
                                         </tr>
                                         <tr>
+                                            <td><b>Déclencheurs (Triggers)</b><br><small style="color: var(--muted); font-size: 0.78em;">Supported Triggers</small></td>
+                                            <td>
+                                                <ul class="trigger-list">
+                                                    <li class="trigger-item">
+                                                        <code>Viewer Request</code>
+                                                        <span class="badge-cache badge-before">before cache</span>
+                                                    </li>
+                                                    <li class="trigger-item">
+                                                        <code>Viewer Response</code>
+                                                        <span class="badge-cache badge-before">before cache</span>
+                                                    </li>
+                                                    <li class="trigger-item" style="color: var(--muted); font-size: 0.82em; margin-top: 2px;">
+                                                        <i class="fas fa-ban" style="color: var(--danger); margin-right: 2px;"></i><i>Aucun trigger Origin</i>
+                                                    </li>
+                                                </ul>
+                                            </td>
+                                            <td>
+                                                <ul class="trigger-list">
+                                                    <li class="trigger-item">
+                                                        <code>Viewer Request</code>
+                                                        <span class="badge-cache badge-before">before cache</span>
+                                                    </li>
+                                                    <li class="trigger-item">
+                                                        <code>Viewer Response</code>
+                                                        <span class="badge-cache badge-before">before cache</span>
+                                                    </li>
+                                                    <li class="trigger-item">
+                                                        <code>Origin Request</code>
+                                                        <span class="badge-cache badge-after">after cache</span>
+                                                    </li>
+                                                    <li class="trigger-item">
+                                                        <code>Origin Response</code>
+                                                        <span class="badge-cache badge-after">after cache</span>
+                                                    </li>
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <td><b>Exécution</b></td>
                                             <td>215+ Edge Locations (avant cache)</td>
                                             <td>Regional Edge Caches (13+)</td>
@@ -1069,7 +1158,8 @@
                                 </table>
                                 <div class="highlight"><b>Distinction Examen :</b> Protocole non-HTTP (TCP/UDP) ou IP
                                     Anycast statique requise → <b>Global Accelerator</b>. Caching web HTTP/S, protection
-                                    WAF ou vidéo HLS/DASH → <b>CloudFront</b>.</div>
+                                    WAF ou vidéo HLS/DASH → <b>CloudFront</b>.<br>
+                                    <b>Triggers :</b> Cache miss vers l'Origin (Origin Request) ou modification de réponse Origin (Origin Response) → <b>Lambda@Edge</b>. Traitement ultra-rapide au Viewer (&lt;&nbsp;1&nbsp;ms) sans accès Origin → <b>CloudFront Functions</b>.</div>
                     </article>
 
                     <article class="card storage searchable">
