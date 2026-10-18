@@ -567,6 +567,18 @@
             font-size: .85rem;
         }
 
+        /* SAP-C02 VS tables - fast scan */
+        .vs-wrap{margin:14px 0 18px;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+        .vs-wrap h3{margin:0;padding:9px 12px;font-size:.95rem;background:rgba(56,189,248,.12);border-bottom:1px solid var(--line)}
+        .vs-wrap h3 i{color:var(--aws-orange);margin-right:6px}
+        .vs-wrap table{margin:0;font-size:.84em}
+        .vs-wrap td:first-child{font-weight:700;white-space:nowrap;background:var(--surface-soft);width:130px}
+        .vs-wrap td.win{background:rgba(21,128,61,.10);font-weight:600}
+        .vs-key{font-size:.82em;color:var(--muted);padding:6px 12px;border-top:1px dashed var(--line)}
+        .vs-key b{color:var(--aws-orange-dark)}
+        body.dark .vs-wrap td.win{background:rgba(21,128,61,.22)}
+        body.dark .vs-key b{color:var(--aws-orange)}
+
         @media (max-width: 600px) {
             body {
                 padding: 10px;
@@ -2335,6 +2347,23 @@
 </tbody>
 </table>
 </section>
+
+<section class="table-section searchable">
+<h2><i class="fas fa-columns"></i> SAP-C02 — Duels de services (2/2)</h2>
+<div class="vs-wrap"><h3><i class="fas fa-shield-alt"></i> WAF vs Shield Advanced vs Network Firewall</h3><table><thead><tr><th></th><th>WAF</th><th>Shield Advanced</th><th>Network Firewall</th></tr></thead><tbody><tr><td>Couche</td><td class="win">L7 (SQLi, XSS sur ALB/CF/API)</td><td>L3/L4/L7 DDoS + cost protect</td><td>L3-L7 stateful VPC (Suricata)</td></tr><tr><td>Déploiement</td><td>Associé à la ressource</td><td>Abonnement + SRT 24/7</td><td class="win">Inspection VPC centrale (TGW)</td></tr></tbody></table><div class="vs-key"><b>Réflexe exam :</b> payload HTTP = WAF | DDoS + facture = Shield Adv | filtrage VPC central = NFW. Manager = Firewall Manager.</div></div>
+<div class="vs-wrap"><h3><i class="fas fa-hdd"></i> S3 CRR vs AWS Backup vs DRS</h3><table><thead><tr><th></th><th>S3 CRR</th><th>AWS Backup</th><th>DRS (Elastic DR)</th></tr></thead><tbody><tr><td>Quoi</td><td>Réplication objets cross-region</td><td>Sauvegarde centralisée + Vault Lock</td><td class="win">Réplication bloc continue EC2</td></tr><tr><td>RTO</td><td>Lecture locale rapide</td><td>Minutes-heures (restore)</td><td class="win">Minutes (failover)</td></tr><tr><td>Anti-ransom</td><td>Versioning + Object Lock</td><td class="win">Vault Lock + cross-account</td><td>Staging isolé + drills</td></tr></tbody></table><div class="vs-key"><b>Réflexe exam :</b> objets chauds multi-région = CRR | conformité immuable = Backup Vault Lock | EC2 RTO minutes = DRS.</div></div>
+<div class="vs-wrap"><h3><i class="fas fa-key"></i> KMS multi-region vs CloudHSM vs ACM</h3><table><thead><tr><th></th><th>KMS MRK</th><th>CloudHSM</th><th>ACM</th></tr></thead><tbody><tr><td>Usage</td><td class="win">Déchiffrement local réplicas</td><td>HSM dédié, contrôle total clés</td><td>Certificats TLS gratuits auto</td></tr><tr><td>Ops</td><td>Managé, réplicas liées</td><td>Lourde (cluster, backup)</td><td class="win">Nulle (renouvellement auto)</td></tr></tbody></table><div class="vs-key"><b>Réflexe exam :</b> S3 CRR chiffré multi-région = MRK | HSM on-prem/contrôle = CloudHSM | TLS = ACM.</div></div>
+<div class="vs-wrap"><h3><i class="fas fa-bolt"></i> EventBridge vs SQS FIFO vs MSK/Kinesis</h3><table><thead><tr><th></th><th>EventBridge</th><th>SQS FIFO</th><th>MSK / Kinesis</th></tr></thead><tbody><tr><td>Pattern</td><td>Bus event cross-account/fan-out</td><td class="win">File ordre strict + DLQ</td><td>Streaming haut débit rejouable</td></tr><tr><td>Débit</td><td>Event-driven modéré</td><td>Jusqu'à 3k msg/s (batch)</td><td class="win">Go/s, rétention, replay</td></tr><tr><td>Cas</td><td>Découplage SaaS, règles</td><td>Commandes, paie, idempotence</td><td>Logs, IoT, analytics temps réel</td></tr></tbody></table><div class="vs-key"><b>Réflexe exam :</b> routage events = EventBridge | ordre + une seule fois = SQS FIFO | replay + débit = MSK/Kinesis.</div></div>
+</section>
+
+
+<section class="table-section searchable">
+<h2><i class="fas fa-columns"></i> SAP-C02 — Duels de services (1/2) : le bon choix en 30 secondes</h2>
+<div class="vs-wrap"><h3><i class="fas fa-network-wired"></i> Cloud WAN vs Transit Gateway vs DX Gateway</h3><table><thead><tr><th></th><th>Cloud WAN</th><th>Transit Gateway</th><th>DX Gateway</th></tr></thead><tbody><tr><td>Rôle</td><td class="win">Réseau global managé</td><td>Hub de routage que tu gères</td><td>Point d'attache DX multi-VPC</td></tr><tr><td>Routage</td><td>Policy centralisée auto</td><td class="win">Tables full-control</td><td>Ne route pas : associe DX + TGW</td></tr><tr><td>Segmentation</td><td class="win">Segments natifs</td><td>Tables séparées manuelles</td><td>Aucune</td></tr><tr><td>Ops</td><td class="win">Minimale</td><td>Élevée (routes, AZ, inspection)</td><td>Faible</td></tr></tbody></table><div class="vs-key"><b>Réflexe exam :</b> réseau global + moindre effort = Cloud WAN | contrôle routage + inspection = TGW | étendre DX = DX GW + TGW.</div></div>
+<div class="vs-wrap"><h3><i class="fas fa-plug"></i> PrivateLink vs VPC Peering vs Transit Gateway</h3><table><thead><tr><th></th><th>PrivateLink</th><th>VPC Peering</th><th>Transit Gateway</th></tr></thead><tbody><tr><td>Modèle</td><td class="win">1 service exposé (one-way)</td><td>VPC à VPC full-mesh</td><td>Hub transitif any-to-any</td></tr><tr><td>CIDR overlap</td><td class="win">OK (pas de routage IP)</td><td>Impossible</td><td>Impossible</td></tr><tr><td>Transitif</td><td>Non (isolation voulue)</td><td>Non</td><td class="win">Oui</td></tr><tr><td>Échelle</td><td>Par service (SaaS, cross-account)</td><td>Explose (n x n)</td><td class="win">Centaines de VPC (RAM)</td></tr></tbody></table><div class="vs-key"><b>Réflexe exam :</b> 1 API cross-account + CIDR en conflit = PrivateLink | any-to-any = TGW | 2 VPC simples = Peering.</div></div>
+<div class="vs-wrap"><h3><i class="fas fa-database"></i> Aurora Global vs RDS Read Replica vs DynamoDB Global Tables</h3><table><thead><tr><th></th><th>Aurora Global</th><th>RDS Read Replica</th><th>Dynamo Global Tables</th></tr></thead><tbody><tr><td>Moteur</td><td>Relationnel (MySQL/PG)</td><td>Relationnel</td><td class="win">NoSQL KV (active-active)</td></tr><tr><td>Lag / RPO</td><td class="win">&lt; 1s / RPO 1s</td><td>Secondes-minutes / RPO &gt; 0</td><td>&lt; 1s multi-écriture</td></tr><tr><td>RTO</td><td class="win">&lt; 1 min</td><td>Minutes (promotion)</td><td>Quasi nul (lecture locale)</td></tr><tr><td>Usage</td><td>DR relationnel exigeant</td><td>Reporting / DR budget</td><td class="win">Écritures multi-régions</td></tr></tbody></table><div class="vs-key"><b>Réflexe exam :</b> SQL + RTO &lt; 1 min = Aurora Global | NoSQL actif-actif = Dynamo Global | reporting/DR budget = Read Replica.</div></div>
+</section>
+
 
 <section class="table-section searchable">
 <h2><i class="fas fa-briefcase"></i> Cas d’entreprise — décisions à haute valeur</h2>
