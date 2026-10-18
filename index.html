@@ -567,17 +567,296 @@
             font-size: .85rem;
         }
 
-        /* SAP-C02 VS tables - fast scan */
-        .vs-wrap{margin:14px 0 18px;border:1px solid var(--line);border-radius:8px;overflow:hidden}
-        .vs-wrap h3{margin:0;padding:9px 12px;font-size:.95rem;background:rgba(56,189,248,.12);border-bottom:1px solid var(--line)}
-        .vs-wrap h3 i{color:var(--aws-orange);margin-right:6px}
-        .vs-wrap table{margin:0;font-size:.84em}
-        .vs-wrap td:first-child{font-weight:700;white-space:nowrap;background:var(--surface-soft);width:130px}
-        .vs-wrap td.win{background:rgba(21,128,61,.10);font-weight:600}
-        .vs-key{font-size:.82em;color:var(--muted);padding:6px 12px;border-top:1px dashed var(--line)}
-        .vs-key b{color:var(--aws-orange-dark)}
-        body.dark .vs-wrap td.win{background:rgba(21,128,61,.22)}
-        body.dark .vs-key b{color:var(--aws-orange)}
+        /* ==========================================================================
+           SAP-C02 — Duels & Arbitrages de services (Grille 2 Colonnes & Design Pro)
+           ========================================================================== */
+        .vs-intro {
+            color: var(--muted);
+            font-size: 0.95rem;
+            margin: -4px 0 16px;
+            line-height: 1.5;
+        }
+
+        .vs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(490px, 1fr));
+            gap: 16px;
+            margin-top: 12px;
+        }
+
+        .vs-card {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+
+        .vs-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.10);
+            border-color: rgba(255, 153, 0, 0.45);
+        }
+
+        body.dark .vs-card {
+            background: var(--surface);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+        }
+
+        body.dark .vs-card:hover {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+            border-color: rgba(255, 153, 0, 0.55);
+        }
+
+        .vs-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.12) 0%, rgba(255, 153, 0, 0.08) 100%);
+            border-bottom: 1px solid var(--line);
+            gap: 10px;
+        }
+
+        body.dark .vs-header {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.18) 0%, rgba(255, 153, 0, 0.12) 100%);
+        }
+
+        .vs-title-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .vs-icon-badge {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: var(--surface);
+            border: 1px solid var(--line);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--aws-orange);
+            font-size: 0.88rem;
+            flex-shrink: 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .vs-header h3 {
+            margin: 0;
+            font-size: 0.94rem;
+            font-weight: 700;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.3;
+        }
+
+        .vs-tag {
+            font-size: 0.70rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--aws-blue-dark);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        body.dark .vs-tag {
+            background: rgba(56, 189, 248, 0.2);
+            color: #7dd3fc;
+            border-color: rgba(56, 189, 248, 0.4);
+        }
+
+        .vs-tag.sec {
+            background: rgba(220, 38, 38, 0.12);
+            color: #dc2626;
+            border-color: rgba(220, 38, 38, 0.3);
+        }
+        body.dark .vs-tag.sec {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border-color: rgba(239, 68, 68, 0.4);
+        }
+
+        .vs-tag.db {
+            background: rgba(6, 182, 212, 0.12);
+            color: #0891b2;
+            border-color: rgba(6, 182, 212, 0.3);
+        }
+        body.dark .vs-tag.db {
+            background: rgba(6, 182, 212, 0.2);
+            color: #22d3ee;
+            border-color: rgba(6, 182, 212, 0.4);
+        }
+
+        .vs-tag.dr {
+            background: rgba(100, 116, 139, 0.12);
+            color: #475569;
+            border-color: rgba(100, 116, 139, 0.3);
+        }
+        body.dark .vs-tag.dr {
+            background: rgba(148, 163, 184, 0.2);
+            color: #cbd5e1;
+            border-color: rgba(148, 163, 184, 0.4);
+        }
+
+        .vs-tag.msg {
+            background: rgba(249, 115, 22, 0.12);
+            color: #c2410c;
+            border-color: rgba(249, 115, 22, 0.3);
+        }
+        body.dark .vs-tag.msg {
+            background: rgba(249, 115, 22, 0.2);
+            color: #fb923c;
+            border-color: rgba(249, 115, 22, 0.4);
+        }
+
+        .vs-body {
+            flex: 1;
+            overflow-x: auto;
+        }
+
+        .vs-table {
+            width: 100%;
+            margin: 0;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+            line-height: 1.35;
+        }
+
+        .vs-table th {
+            background: var(--surface-soft);
+            color: var(--text);
+            font-weight: 700;
+            padding: 7px 10px;
+            font-size: 0.81rem;
+            border-bottom: 2px solid var(--line);
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .vs-table th:first-child {
+            width: 95px;
+            min-width: 85px;
+            color: var(--muted);
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .vs-table td {
+            padding: 7px 10px;
+            border-bottom: 1px solid var(--line);
+            vertical-align: middle;
+            font-size: 0.81rem;
+        }
+
+        .vs-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .vs-table td.crit {
+            font-weight: 700;
+            color: var(--muted);
+            background: var(--surface-soft);
+            white-space: nowrap;
+            font-size: 0.76rem;
+            width: 95px;
+            min-width: 85px;
+            border-right: 1px solid var(--line);
+        }
+
+        .vs-table td.win {
+            background: rgba(16, 185, 129, 0.12);
+            color: #047857;
+            font-weight: 600;
+            border-left: 2px solid #10b981;
+        }
+
+        body.dark .vs-table td.win {
+            background: rgba(16, 185, 129, 0.22);
+            color: #6ee7b7;
+            border-left: 2px solid #34d399;
+        }
+
+        /* Boîte de réflexe examen */
+        .vs-key {
+            background: rgba(255, 153, 0, 0.07);
+            border-top: 1px solid rgba(255, 153, 0, 0.25);
+            padding: 8px 12px;
+            font-size: 0.80rem;
+            line-height: 1.45;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        body.dark .vs-key {
+            background: rgba(255, 153, 0, 0.12);
+            border-top: 1px solid rgba(255, 153, 0, 0.35);
+        }
+
+        .vs-key-icon {
+            color: var(--aws-orange);
+            font-size: 0.88rem;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        .vs-key-content {
+            flex: 1;
+            color: var(--text);
+        }
+
+        .vs-key-title {
+            font-weight: 700;
+            color: var(--aws-orange-dark);
+            margin-right: 5px;
+            text-transform: uppercase;
+            font-size: 0.74rem;
+            letter-spacing: 0.3px;
+        }
+
+        body.dark .vs-key-title {
+            color: var(--aws-orange);
+        }
+
+        .vs-key mark.trigger {
+            background: rgba(255, 153, 0, 0.16);
+            color: var(--text);
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        body.dark .vs-key mark.trigger {
+            background: rgba(255, 153, 0, 0.30);
+            color: #fef3c7;
+        }
+
+        .vs-key .sep {
+            color: var(--muted);
+            margin: 0 4px;
+            opacity: 0.6;
+        }
+
+        @media (max-width: 900px) {
+            .vs-grid {
+                grid-template-columns: 1fr;
+            }
+        }
 
         @media (max-width: 600px) {
             body {
@@ -2349,19 +2628,447 @@
 </section>
 
 <section class="table-section searchable">
-<h2><i class="fas fa-columns"></i> SAP-C02 — Duels de services (2/2)</h2>
-<div class="vs-wrap"><h3><i class="fas fa-shield-alt"></i> WAF vs Shield Advanced vs Network Firewall</h3><table><thead><tr><th></th><th>WAF</th><th>Shield Advanced</th><th>Network Firewall</th></tr></thead><tbody><tr><td>Couche</td><td class="win">L7 (SQLi, XSS sur ALB/CF/API)</td><td>L3/L4/L7 DDoS + cost protect</td><td>L3-L7 stateful VPC (Suricata)</td></tr><tr><td>Déploiement</td><td>Associé à la ressource</td><td>Abonnement + SRT 24/7</td><td class="win">Inspection VPC centrale (TGW)</td></tr></tbody></table><div class="vs-key"><b>Réflexe exam :</b> payload HTTP = WAF | DDoS + facture = Shield Adv | filtrage VPC central = NFW. Manager = Firewall Manager.</div></div>
-<div class="vs-wrap"><h3><i class="fas fa-hdd"></i> S3 CRR vs AWS Backup vs DRS</h3><table><thead><tr><th></th><th>S3 CRR</th><th>AWS Backup</th><th>DRS (Elastic DR)</th></tr></thead><tbody><tr><td>Quoi</td><td>Réplication objets cross-region</td><td>Sauvegarde centralisée + Vault Lock</td><td class="win">Réplication bloc continue EC2</td></tr><tr><td>RTO</td><td>Lecture locale rapide</td><td>Minutes-heures (restore)</td><td class="win">Minutes (failover)</td></tr><tr><td>Anti-ransom</td><td>Versioning + Object Lock</td><td class="win">Vault Lock + cross-account</td><td>Staging isolé + drills</td></tr></tbody></table><div class="vs-key"><b>Réflexe exam :</b> objets chauds multi-région = CRR | conformité immuable = Backup Vault Lock | EC2 RTO minutes = DRS.</div></div>
-<div class="vs-wrap"><h3><i class="fas fa-key"></i> KMS multi-region vs CloudHSM vs ACM</h3><table><thead><tr><th></th><th>KMS MRK</th><th>CloudHSM</th><th>ACM</th></tr></thead><tbody><tr><td>Usage</td><td class="win">Déchiffrement local réplicas</td><td>HSM dédié, contrôle total clés</td><td>Certificats TLS gratuits auto</td></tr><tr><td>Ops</td><td>Managé, réplicas liées</td><td>Lourde (cluster, backup)</td><td class="win">Nulle (renouvellement auto)</td></tr></tbody></table><div class="vs-key"><b>Réflexe exam :</b> S3 CRR chiffré multi-région = MRK | HSM on-prem/contrôle = CloudHSM | TLS = ACM.</div></div>
-<div class="vs-wrap"><h3><i class="fas fa-bolt"></i> EventBridge vs SQS FIFO vs MSK/Kinesis</h3><table><thead><tr><th></th><th>EventBridge</th><th>SQS FIFO</th><th>MSK / Kinesis</th></tr></thead><tbody><tr><td>Pattern</td><td>Bus event cross-account/fan-out</td><td class="win">File ordre strict + DLQ</td><td>Streaming haut débit rejouable</td></tr><tr><td>Débit</td><td>Event-driven modéré</td><td>Jusqu'à 3k msg/s (batch)</td><td class="win">Go/s, rétention, replay</td></tr><tr><td>Cas</td><td>Découplage SaaS, règles</td><td>Commandes, paie, idempotence</td><td>Logs, IoT, analytics temps réel</td></tr></tbody></table><div class="vs-key"><b>Réflexe exam :</b> routage events = EventBridge | ordre + une seule fois = SQS FIFO | replay + débit = MSK/Kinesis.</div></div>
-</section>
+<h2><i class="fas fa-bolt"></i> SAP-C02 — Duels de services : le bon choix en 30 secondes</h2>
+<p class="vs-intro">Arbitrages architecturaux majeurs pour l'examen. Les différentiateurs gagnants sont surlignés en <span style="color:#047857; font-weight:700;">vert émeraude</span> et chaque duel synthétise le <b>réflexe examen immédiat</b> pour répondre vite et juste.</p>
+<div class="vs-grid">
 
+<div class="vs-card vs-wrap">
+    <div class="vs-header">
+        <div class="vs-title-group">
+            <span class="vs-icon-badge"><i class="fas fa-network-wired"></i></span>
+            <h3>Cloud WAN vs Transit Gateway vs DX Gateway</h3>
+        </div>
+        <span class="vs-tag">Réseau</span>
+    </div>
+    <div class="vs-body">
+        <table class="vs-table">
+            <thead>
+                <tr>
+                    <th>Critère</th>
+                    <th>Cloud WAN</th>
+                    <th>Transit Gateway</th>
+                    <th>DX Gateway</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="crit">Rôle</td>
+                    <td class="win">Réseau global managé</td>
+                    <td>Hub de routage que tu gères</td>
+                    <td>Point d'attache DX multi-VPC</td>
+                </tr>
+                <tr>
+                    <td class="crit">Routage</td>
+                    <td>Policy centralisée auto</td>
+                    <td class="win">Tables full-control</td>
+                    <td>Ne route pas : associe DX + TGW</td>
+                </tr>
+                <tr>
+                    <td class="crit">Segmentation</td>
+                    <td class="win">Segments natifs</td>
+                    <td>Tables séparées manuelles</td>
+                    <td>Aucune</td>
+                </tr>
+                <tr>
+                    <td class="crit">Ops</td>
+                    <td class="win">Minimale</td>
+                    <td>Élevée (routes, AZ, inspection)</td>
+                    <td>Faible</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="vs-key">
+        <i class="fas fa-bolt vs-key-icon"></i>
+        <div class="vs-key-content">
+            <span class="vs-key-title">Réflexe exam :</span>
+            <span><mark class="trigger">réseau global + moindre effort</mark> → <b>Cloud WAN</b></span>
+            <span class="sep">|</span>
+            <span><mark class="trigger">contrôle routage + inspection</mark> → <b>TGW</b></span>
+            <span class="sep">|</span>
+            <span><mark class="trigger">étendre DX</mark> → <b>DX GW + TGW</b></span>
+        </div>
+    </div>
+</div>
 
-<section class="table-section searchable">
-<h2><i class="fas fa-columns"></i> SAP-C02 — Duels de services (1/2) : le bon choix en 30 secondes</h2>
-<div class="vs-wrap"><h3><i class="fas fa-network-wired"></i> Cloud WAN vs Transit Gateway vs DX Gateway</h3><table><thead><tr><th></th><th>Cloud WAN</th><th>Transit Gateway</th><th>DX Gateway</th></tr></thead><tbody><tr><td>Rôle</td><td class="win">Réseau global managé</td><td>Hub de routage que tu gères</td><td>Point d'attache DX multi-VPC</td></tr><tr><td>Routage</td><td>Policy centralisée auto</td><td class="win">Tables full-control</td><td>Ne route pas : associe DX + TGW</td></tr><tr><td>Segmentation</td><td class="win">Segments natifs</td><td>Tables séparées manuelles</td><td>Aucune</td></tr><tr><td>Ops</td><td class="win">Minimale</td><td>Élevée (routes, AZ, inspection)</td><td>Faible</td></tr></tbody></table><div class="vs-key"><b>Réflexe exam :</b> réseau global + moindre effort = Cloud WAN | contrôle routage + inspection = TGW | étendre DX = DX GW + TGW.</div></div>
-<div class="vs-wrap"><h3><i class="fas fa-plug"></i> PrivateLink vs VPC Peering vs Transit Gateway</h3><table><thead><tr><th></th><th>PrivateLink</th><th>VPC Peering</th><th>Transit Gateway</th></tr></thead><tbody><tr><td>Modèle</td><td class="win">1 service exposé (one-way)</td><td>VPC à VPC full-mesh</td><td>Hub transitif any-to-any</td></tr><tr><td>CIDR overlap</td><td class="win">OK (pas de routage IP)</td><td>Impossible</td><td>Impossible</td></tr><tr><td>Transitif</td><td>Non (isolation voulue)</td><td>Non</td><td class="win">Oui</td></tr><tr><td>Échelle</td><td>Par service (SaaS, cross-account)</td><td>Explose (n x n)</td><td class="win">Centaines de VPC (RAM)</td></tr></tbody></table><div class="vs-key"><b>Réflexe exam :</b> 1 API cross-account + CIDR en conflit = PrivateLink | any-to-any = TGW | 2 VPC simples = Peering.</div></div>
-<div class="vs-wrap"><h3><i class="fas fa-database"></i> Aurora Global vs RDS Read Replica vs DynamoDB Global Tables</h3><table><thead><tr><th></th><th>Aurora Global</th><th>RDS Read Replica</th><th>Dynamo Global Tables</th></tr></thead><tbody><tr><td>Moteur</td><td>Relationnel (MySQL/PG)</td><td>Relationnel</td><td class="win">NoSQL KV (active-active)</td></tr><tr><td>Lag / RPO</td><td class="win">&lt; 1s / RPO 1s</td><td>Secondes-minutes / RPO &gt; 0</td><td>&lt; 1s multi-écriture</td></tr><tr><td>RTO</td><td class="win">&lt; 1 min</td><td>Minutes (promotion)</td><td>Quasi nul (lecture locale)</td></tr><tr><td>Usage</td><td>DR relationnel exigeant</td><td>Reporting / DR budget</td><td class="win">Écritures multi-régions</td></tr></tbody></table><div class="vs-key"><b>Réflexe exam :</b> SQL + RTO &lt; 1 min = Aurora Global | NoSQL actif-actif = Dynamo Global | reporting/DR budget = Read Replica.</div></div>
+<div class="vs-card vs-wrap">
+    <div class="vs-header">
+        <div class="vs-title-group">
+            <span class="vs-icon-badge"><i class="fas fa-plug"></i></span>
+            <h3>PrivateLink vs VPC Peering vs Transit Gateway</h3>
+        </div>
+        <span class="vs-tag">Connectivité</span>
+    </div>
+    <div class="vs-body">
+        <table class="vs-table">
+            <thead>
+                <tr>
+                    <th>Critère</th>
+                    <th>PrivateLink</th>
+                    <th>VPC Peering</th>
+                    <th>Transit Gateway</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="crit">Modèle</td>
+                    <td class="win">1 service exposé (one-way)</td>
+                    <td>VPC à VPC full-mesh</td>
+                    <td>Hub transitif any-to-any</td>
+                </tr>
+                <tr>
+                    <td class="crit">CIDR overlap</td>
+                    <td class="win">OK (pas de routage IP)</td>
+                    <td>Impossible</td>
+                    <td>Impossible</td>
+                </tr>
+                <tr>
+                    <td class="crit">Transitif</td>
+                    <td>Non (isolation voulue)</td>
+                    <td>Non</td>
+                    <td class="win">Oui</td>
+                </tr>
+                <tr>
+                    <td class="crit">Échelle</td>
+                    <td>Par service (SaaS, cross-account)</td>
+                    <td>Explose (n x n)</td>
+                    <td class="win">Centaines de VPC (RAM)</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="vs-key">
+        <i class="fas fa-bolt vs-key-icon"></i>
+        <div class="vs-key-content">
+            <span class="vs-key-title">Réflexe exam :</span>
+            <span><mark class="trigger">1 service cross-account + CIDR conflit</mark> → <b>PrivateLink</b></span>
+            <span class="sep">|</span>
+            <span><mark class="trigger">any-to-any transitif</mark> → <b>TGW</b></span>
+            <span class="sep">|</span>
+            <span><mark class="trigger">2 VPC simples</mark> → <b>Peering</b></span>
+        </div>
+    </div>
+</div>
+
+<div class="vs-card vs-wrap">
+    <div class="vs-header">
+        <div class="vs-title-group">
+            <span class="vs-icon-badge"><i class="fas fa-shield-alt"></i></span>
+            <h3>WAF vs Shield Advanced vs Network Firewall</h3>
+        </div>
+        <span class="vs-tag sec">Sécurité Edge</span>
+    </div>
+    <div class="vs-body">
+        <table class="vs-table">
+            <thead>
+                <tr>
+                    <th>Critère</th>
+                    <th>WAF</th>
+                    <th>Shield Advanced</th>
+                    <th>Network Firewall</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="crit">Couche</td>
+                    <td class="win">L7 (SQLi, XSS sur ALB/CF/API)</td>
+                    <td>L3/L4/L7 DDoS + cost protect</td>
+                    <td>L3-L7 stateful VPC (Suricata)</td>
+                </tr>
+                <tr>
+                    <td class="crit">Déploiement</td>
+                    <td>Associé à la ressource</td>
+                    <td>Abonnement + équipe SRT 24/7</td>
+                    <td class="win">Inspection VPC centrale (TGW)</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="vs-key">
+        <i class="fas fa-bolt vs-key-icon"></i>
+        <div class="vs-key-content">
+            <span class="vs-key-title">Réflexe exam :</span>
+            <span><mark class="trigger">payload HTTP (SQLi, XSS)</mark> → <b>WAF</b></span>
+            <span class="sep">|</span>
+            <span><mark class="trigger">DDoS + protection facture</mark> → <b>Shield Adv</b></span>
+            <span class="sep">|</span>
+            <span><mark class="trigger">filtrage VPC central</mark> → <b>NFW</b> (Manager = <b>Firewall Manager</b>)</span>
+        </div>
+    </div>
+</div>
+
+<div class="vs-card vs-wrap">
+    <div class="vs-header">
+        <div class="vs-title-group">
+            <span class="vs-icon-badge"><i class="fas fa-key"></i></span>
+            <h3>KMS multi-region vs CloudHSM vs ACM</h3>
+        </div>
+        <span class="vs-tag sec">Chiffrement</span>
+    </div>
+    <div class="vs-body">
+        <table class="vs-table">
+            <thead>
+                <tr>
+                    <th>Critère</th>
+                    <th>KMS MRK</th>
+                    <th>CloudHSM</th>
+                    <th>ACM</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="crit">Usage</td>
+                    <td class="win">Déchiffrement local réplicas</td>
+                    <td>HSM dédié, contrôle total clés FIPS L3</td>
+                    <td>Certificats TLS gratuits auto</td>
+                </tr>
+                <tr>
+                    <td class="crit">Ops</td>
+                    <td>Managé, réplicas liées</td>
+                    <td>Lourde (cluster, backup manuel)</td>
+                    <td class="win">Nulle (renouvellement auto)</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="vs-key">
+        <i class="fas fa-bolt vs-key-icon"></i>
+        <div class="vs-key-content">
+            <span class="vs-key-title">Réflexe exam :</span>
+            <span><mark class="trigger">S3 CRR chiffré multi-région</mark> → <b>MRK</b></span>
+            <span class="sep">|</span>
+            <span><mark class="trigger">contrôle matériel / FIPS L3</mark> → <b>CloudHSM</b></span>
+            <span class="sep">|</span>
+            <span><mark class="trigger">certificats TLS</mark> → <b>ACM</b></span>
+        </div>
+    </div>
+</div>
+
+<div class="vs-card vs-wrap">
+    <div class="vs-header">
+        <div class="vs-title-group">
+            <span class="vs-icon-badge"><i class="fas fa-database"></i></span>
+            <h3>Aurora Global vs RDS Read Replica vs DynamoDB Global</h3>
+        </div>
+        <span class="vs-tag db">Bases de données</span>
+    </div>
+    <div class="vs-body">
+        <table class="vs-table">
+            <thead>
+                <tr>
+                    <th>Critère</th>
+                    <th>Aurora Global</th>
+                    <th>RDS Read Replica</th>
+                    <th>Dynamo Global</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="crit">Moteur</td>
+                    <td>Relationnel (MySQL/PG)</td>
+                    <td>Relationnel</td>
+                    <td class="win">NoSQL KV (active-active)</td>
+                </tr>
+                <tr>
+                    <td class="crit">Lag / RPO</td>
+                    <td class="win">&lt; 1s / RPO ≤ 1s</td>
+                    <td>Secondes-minutes / RPO &gt; 0</td>
+                    <td>&lt; 1s multi-écriture</td>
+                </tr>
+                <tr>
+                    <td class="crit">RTO</td>
+                    <td class="win">&lt; 1 min</td>
+                    <td>Minutes (promotion manuelle)</td>
+                    <td>Quasi nul (lecture locale)</td>
+                </tr>
+                <tr>
+                    <td class="crit">Usage</td>
+                    <td>DR relationnel exigeant</td>
+                    <td>Reporting / DR budget</td>
+                    <td class="win">Écritures multi-régions actives</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="vs-key">
+        <i class="fas fa-bolt vs-key-icon"></i>
+        <div class="vs-key-content">
+            <span class="vs-key-title">Réflexe exam :</span>
+            <span><mark class="trigger">SQL + RTO &lt; 1 min</mark> → <b>Aurora Global</b></span>
+            <span class="sep">|</span>
+            <span><mark class="trigger">NoSQL actif-actif multi-région</mark> → <b>Dynamo Global</b></span>
+            <span class="sep">|</span>
+            <span><mark class="trigger">reporting / DR budget</mark> → <b>Read Replica</b></span>
+        </div>
+    </div>
+</div>
+
+<div class="vs-card vs-wrap">
+    <div class="vs-header">
+        <div class="vs-title-group">
+            <span class="vs-icon-badge"><i class="fas fa-hdd"></i></span>
+            <h3>S3 CRR vs AWS Backup vs DRS (Elastic DR)</h3>
+        </div>
+        <span class="vs-tag dr">Résilience & DR</span>
+    </div>
+    <div class="vs-body">
+        <table class="vs-table">
+            <thead>
+                <tr>
+                    <th>Critère</th>
+                    <th>S3 CRR</th>
+                    <th>AWS Backup</th>
+                    <th>DRS (Elastic DR)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="crit">Quoi</td>
+                    <td>Réplication objets cross-region</td>
+                    <td>Sauvegarde centralisée + Vault Lock</td>
+                    <td class="win">Réplication bloc continue EC2</td>
+                </tr>
+                <tr>
+                    <td class="crit">RTO</td>
+                    <td>Lecture locale rapide</td>
+                    <td>Minutes-heures (restore)</td>
+                    <td class="win">Minutes (failover)</td>
+                </tr>
+                <tr>
+                    <td class="crit">Anti-ransom</td>
+                    <td>Versioning + Object Lock</td>
+                    <td class="win">Vault Lock + cross-account</td>
+                    <td>Staging isolé + drills</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="vs-key">
+        <i class="fas fa-bolt vs-key-icon"></i>
+        <div class="vs-key-content">
+            <span class="vs-key-title">Réflexe exam :</span>
+            <span><mark class="trigger">objets chauds multi-région</mark> → <b>CRR</b></span>
+            <span class="sep">|</span>
+            <span><mark class="trigger">conformité immuable WORM</mark> → <b>Backup Vault Lock</b></span>
+            <span class="sep">|</span>
+            <span><mark class="trigger">EC2 RTO minutes</mark> → <b>DRS</b></span>
+        </div>
+    </div>
+</div>
+
+<div class="vs-card vs-wrap">
+    <div class="vs-header">
+        <div class="vs-title-group">
+            <span class="vs-icon-badge"><i class="fas fa-bolt"></i></span>
+            <h3>EventBridge vs SQS FIFO vs MSK / Kinesis</h3>
+        </div>
+        <span class="vs-tag msg">Messaging</span>
+    </div>
+    <div class="vs-body">
+        <table class="vs-table">
+            <thead>
+                <tr>
+                    <th>Critère</th>
+                    <th>EventBridge</th>
+                    <th>SQS FIFO</th>
+                    <th>MSK / Kinesis</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="crit">Pattern</td>
+                    <td>Bus event cross-account/fan-out</td>
+                    <td class="win">File ordre strict + DLQ</td>
+                    <td>Streaming haut débit rejouable</td>
+                </tr>
+                <tr>
+                    <td class="crit">Débit</td>
+                    <td>Event-driven modéré</td>
+                    <td>Jusqu'à 3k msg/s (batch)</td>
+                    <td class="win">Go/s, rétention, replay</td>
+                </tr>
+                <tr>
+                    <td class="crit">Cas</td>
+                    <td>Découplage SaaS, règles</td>
+                    <td>Commandes, paie, idempotence</td>
+                    <td>Logs, IoT, analytics temps réel</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="vs-key">
+        <i class="fas fa-bolt vs-key-icon"></i>
+        <div class="vs-key-content">
+            <span class="vs-key-title">Réflexe exam :</span>
+            <span><mark class="trigger">routage events cross-account</mark> → <b>EventBridge</b></span>
+            <span class="sep">|</span>
+            <span><mark class="trigger">ordre strict + exactly-once</mark> → <b>SQS FIFO</b></span>
+            <span class="sep">|</span>
+            <span><mark class="trigger">replay + streaming Go/s</mark> → <b>MSK/Kinesis</b></span>
+        </div>
+    </div>
+</div>
+
+<div class="vs-card vs-wrap">
+    <div class="vs-header">
+        <div class="vs-title-group">
+            <span class="vs-icon-badge"><i class="fas fa-sitemap"></i></span>
+            <h3>NLB vs ALB vs Gateway Load Balancer (GWLB)</h3>
+        </div>
+        <span class="vs-tag">Load Balancing</span>
+    </div>
+    <div class="vs-body">
+        <table class="vs-table">
+            <thead>
+                <tr>
+                    <th>Critère</th>
+                    <th>NLB</th>
+                    <th>ALB</th>
+                    <th>GWLB</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="crit">Couche</td>
+                    <td>L4 (TCP/UDP, TLS passthrough)</td>
+                    <td>L7 (HTTP/HTTPS, path, gRPC)</td>
+                    <td class="win">L3/L4 transparent (GENEVE)</td>
+                </tr>
+                <tr>
+                    <td class="crit">Performance</td>
+                    <td class="win">Millions req/s, latence &mu;s</td>
+                    <td>Règles de routage avancées</td>
+                    <td>Selon débit des firewalls tiers</td>
+                </tr>
+                <tr>
+                    <td class="crit">Adresse IP</td>
+                    <td class="win">1 IP statique / Elastic IP par AZ</td>
+                    <td>DNS name (IPs dynamiques)</td>
+                    <td>Endpoint d'attache VPC route table</td>
+                </tr>
+                <tr>
+                    <td class="crit">Cas cible</td>
+                    <td>Gaming, IoT, IP whitelisting</td>
+                    <td>Microservices, APIs, Auth Cognito</td>
+                    <td class="win">Firewalls tiers inline (Palo Alto, Fortinet)</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="vs-key">
+        <i class="fas fa-bolt vs-key-icon"></i>
+        <div class="vs-key-content">
+            <span class="vs-key-title">Réflexe exam :</span>
+            <span><mark class="trigger">IP statique / TCP ultra-rapide</mark> → <b>NLB</b></span>
+            <span class="sep">|</span>
+            <span><mark class="trigger">routage HTTP / URL / OIDC</mark> → <b>ALB</b></span>
+            <span class="sep">|</span>
+            <span><mark class="trigger">firewall tiers inline transparent</mark> → <b>GWLB</b></span>
+        </div>
+    </div>
+</div>
+
+</div>
 </section>
 
 
