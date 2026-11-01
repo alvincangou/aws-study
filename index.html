@@ -3199,39 +3199,64 @@
                 });
             });
 
+            // ---- Performance fix: cache searchable text once ----
+            // Precompute lowercased text so applyFilters() never re-reads /
+            // re-lowercases the whole DOM on every keystroke (the cause of typing lag).
+            const panelData = panels.map(function (panel) {
+                const panelId = panel.id;
+                const cards = Array.from(panel.querySelectorAll('.card.searchable')).map(function (card) {
+                    return {
+                        el: card,
+                        category: card.dataset.category || '',
+                        text: card.textContent.toLocaleLowerCase('fr')
+                    };
+                });
+                const others = Array.from(panel.querySelectorAll('.searchable:not(.card)')).map(function (el) {
+                    return {
+                        el: el,
+                        text: el.textContent.toLocaleLowerCase('fr')
+                    };
+                });
+                return { panelId: panelId, cards: cards, others: others };
+            });
+
             function applyFilters() {
                 const query = searchInput.value.trim().toLocaleLowerCase('fr');
                 let totalVisible = 0;
                 const counts = { associate: 0, professional: 0 };
+                const toggleOps = []; // batch DOM writes: [element, addHidden]
 
-                panels.forEach(function (panel) {
-                    const panelId = panel.id;
+                panelData.forEach(function (data) {
+                    const panelId = data.panelId;
                     const activeFilter = activeFilters[panelId] || 'all';
-                    const cards = Array.from(panel.querySelectorAll('.card.searchable'));
-                    const otherSearchables = Array.from(panel.querySelectorAll('.searchable:not(.card)'));
 
-                    cards.forEach(function (card) {
-                        const cardCategory = card.dataset.category || '';
-                        const matchesCategory = (activeFilter === 'all') || (cardCategory === activeFilter) || card.classList.contains(activeFilter);
-                        const matchesText = !query || card.textContent.toLocaleLowerCase('fr').includes(query);
+                    data.cards.forEach(function (card) {
+                        const matchesCategory = (activeFilter === 'all') ||
+                            (card.category === activeFilter) ||
+                            card.el.classList.contains(activeFilter);
+                        const matchesText = !query || card.text.includes(query);
                         const isVisible = matchesCategory && matchesText;
-
-                        card.classList.toggle('hidden', !isVisible);
+                        toggleOps.push([card.el, !isVisible]);
                         if (isVisible) {
                             counts[panelId] += 1;
                             totalVisible += 1;
                         }
                     });
 
-                    otherSearchables.forEach(function (el) {
-                        const matchesText = !query || el.textContent.toLocaleLowerCase('fr').includes(query);
+                    data.others.forEach(function (item) {
+                        const matchesText = !query || item.text.includes(query);
                         const isVisible = (activeFilter === 'all' || query !== '') ? matchesText : false;
-                        el.classList.toggle('hidden', !isVisible);
+                        toggleOps.push([item.el, !isVisible]);
                         if (isVisible && query) {
                             counts[panelId] += 1;
                             totalVisible += 1;
                         }
                     });
+                });
+
+                // Batch apply visibility toggles to reduce style thrashing
+                toggleOps.forEach(function (op) {
+                    op[0].classList.toggle('hidden', op[1]);
                 });
 
                 if (!query) {
@@ -3244,7 +3269,13 @@
                 }
             }
 
-            searchInput.addEventListener('input', applyFilters);
+            // Debounce input so filtering runs after the user pauses typing,
+            // not on every single keystroke (fixes the laggy/slow typing).
+            let filterTimer = null;
+            searchInput.addEventListener('input', function () {
+                clearTimeout(filterTimer);
+                filterTimer = setTimeout(applyFilters, 150);
+            });
             clearButton.addEventListener('click', function () {
                 searchInput.value = '';
                 searchInput.focus();
