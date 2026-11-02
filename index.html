@@ -354,6 +354,14 @@
             font-size: .92rem;
         }
 
+        /* Surlignage des termes recherchés (barre de recherche globale) */
+        .search-match {
+            background: #ffe066 !important;
+            color: #111 !important;
+            border-radius: 2px;
+            padding: 0 2px;
+        }
+
         .gotcha {
             background: rgba(220, 38, 38, .10);
             border-color: #ef4444;
@@ -1039,6 +1047,13 @@
                 background: #fdf4e3 !important;
                 border: 1px dashed #c76b00 !important;
                 color: #111 !important;
+            }
+
+            .search-match {
+                background: #ffe066 !important;
+                color: #111 !important;
+                border-radius: 2px;
+                padding: 0 2px;
             }
 
             .gotcha {
@@ -3220,6 +3235,51 @@
                 return { panelId: panelId, cards: cards, others: others };
             });
 
+            // ---- Helpers: surlignage des termes recherchés ----
+
+            function escapeRegExp(string) {
+                return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            }
+
+            function clearHighlights() {
+                document.querySelectorAll('.search-match').forEach(function (span) {
+                    var parent = span.parentNode;
+                    parent.replaceChild(document.createTextNode(span.textContent), span);
+                    parent.normalize();
+                });
+            }
+
+            function highlightText(element, query) {
+                if (!query) return;
+                var regex = new RegExp('(' + escapeRegExp(query) + ')', 'gi');
+                var walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
+                var textNodes = [];
+                var node;
+                while (node = walker.nextNode()) {
+                    textNodes.push(node);
+                }
+                textNodes.forEach(function (textNode) {
+                    var parent = textNode.parentNode;
+                    if (parent.classList && parent.classList.contains('search-match')) return;
+                    var matches = textNode.textContent.match(regex);
+                    if (!matches) return;
+                    var frag = document.createDocumentFragment();
+                    var lastIndex = 0;
+                    textNode.textContent.replace(regex, function (match, offset) {
+                        var before = textNode.textContent.slice(lastIndex, offset);
+                        if (before) frag.appendChild(document.createTextNode(before));
+                        var span = document.createElement('span');
+                        span.className = 'search-match';
+                        span.textContent = match;
+                        frag.appendChild(span);
+                        lastIndex = offset + match.length;
+                    });
+                    var after = textNode.textContent.slice(lastIndex);
+                    if (after) frag.appendChild(document.createTextNode(after));
+                    parent.replaceChild(frag, textNode);
+                });
+            }
+
             function applyFilters() {
                 const query = searchInput.value.trim().toLocaleLowerCase('fr');
                 let totalVisible = 0;
@@ -3258,6 +3318,25 @@
                 toggleOps.forEach(function (op) {
                     op[0].classList.toggle('hidden', op[1]);
                 });
+
+                // Nettoyage des surlignages précédents
+                clearHighlights();
+
+                // Surligner les termes recherchés dans les éléments visibles seulement
+                if (query) {
+                    panelData.forEach(function (data) {
+                        data.cards.forEach(function (card) {
+                            if (!card.el.classList.contains('hidden')) {
+                                highlightText(card.el, query);
+                            }
+                        });
+                        data.others.forEach(function (item) {
+                            if (!item.el.classList.contains('hidden')) {
+                                highlightText(item.el, query);
+                            }
+                        });
+                    });
+                }
 
                 if (!query) {
                     status.textContent = 'Affichage : Associate (' + counts.associate + ' cartes) · Professional (' + counts.professional + ' cartes)';
